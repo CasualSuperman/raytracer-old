@@ -1,7 +1,11 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	vec "raytracer/vector"
+)
 
 func main() {
-	fmt.Println("Hello, world.")
+	v1 := vec.Vec3{3, 4, 0}
+	fmt.Println("Length:", v1.Length())
 }
