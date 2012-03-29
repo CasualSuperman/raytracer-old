@@ -5,7 +5,7 @@ type Vec3 struct {
 }
 
 type Direction Vec3
-type Position  Vec3
+type Position Vec3
 
 type Ray struct {
 	Position

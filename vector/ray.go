@@ -1,7 +1,11 @@
 package vector
 
-func (r *Ray) Scale(amount float64) {
-	r.Direction.X *= amount
-	r.Direction.Y *= amount
-	r.Direction.Z *= amount
+/* Inherited from Direction:
+ * 		Scale
+ *
+ * Inherited from Position:
+ * 		Displace
+ */
+func NewRay(p Position, d Direction) Ray {
+	return Ray{p, d}
 }
