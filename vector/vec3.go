@@ -3,18 +3,8 @@ package vector
 import "fmt"
 import "math"
 
-type Vec3 struct {
-	X, Y, Z float64
-}
-
 func (v *Vec3) Length() float64 {
 	return math.Sqrt(v.X * v.X + v.Y * v.Y + v.Z * v.Z)
-}
-
-func (v1 *Vec3) DotProduct(v2 *Vec3) float64 {
-	return v1.X * v2.X +
-		   v1.Y * v2.Y +
-		   v1.Z * v2.Z
 }
 
 func (v1 *Vec3) Scale(factor float64, dest *Vec3) {
@@ -55,6 +45,6 @@ func (v1 *Vec3) Unit(out *Vec3) {
 	}
 }
 
-func (v1 *Vec3) String() string {
-	return fmt.Sprintln("<%f, %f, %f>", v1.X, v1.Y, v1.Z)
+func (v *Vec3) String() string {
+	return fmt.Sprintln("<%f, %f, %f>", v.X, v.Y, v.Z)
 }
