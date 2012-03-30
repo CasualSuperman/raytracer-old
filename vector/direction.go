@@ -62,5 +62,5 @@ func (d1 *Direction) Sub(d2 *Direction) {
 }
 
 func (d *Direction) String() string {
-	return fmt.Sprintln("<%f, %f, %f>", d.X, d.Y, d.Z)
+	return fmt.Sprintf("<%f, %f, %f>", d.X, d.Y, d.Z)
 }

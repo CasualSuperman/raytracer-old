@@ -26,5 +26,5 @@ func (source *Position) Offset(target *Position) Direction {
 }
 
 func (p *Position) String() string {
-	return fmt.Sprintln("<%f, %f, %f>", p.X, p.Y, p.Z)
+	return fmt.Sprintf("<%f, %f, %f>", p.X, p.Y, p.Z)
 }
