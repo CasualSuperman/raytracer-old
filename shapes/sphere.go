@@ -22,13 +22,13 @@ func (s *Sphere) Intersect(r vector.Ray) (hit bool, length float64) {
 	b := 2 * vector.Dot(&ray.Position, &ray.Direction)
 	c := vector.Dot(&ray.Position, &ray.Position) - radius * radius
 
-	discriminant := math.Sqrt(b * b - 4 * a * c)
+	discriminant := b * b - 4 * a * c
 
 	if math.Abs(discriminant) <= (math.SmallestNonzeroFloat64 * 10) {
 		return false, math.Inf(1)
 	}
 
-	t := (-b - discriminant) / 2 * a
+	t := (-b - math.Sqrt(discriminant)) / 2 * a
 
 	hitPos := r.Position.Copy()
 	move := r.Direction.Copy()
