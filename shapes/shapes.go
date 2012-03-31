@@ -16,6 +16,8 @@ type Shape struct {
 	Mat Material
 
 	shape Intersecter
+
+	Hit vector.Position
 }
 
 type Material struct {
