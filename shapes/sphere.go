@@ -24,7 +24,7 @@ func (s *Sphere) Intersect(r vector.Ray) (hit bool, length float64) {
 
 	discriminant := b * b - 4 * a * c
 
-	if math.Abs(discriminant) <= (math.SmallestNonzeroFloat64 * 10) {
+	if math.Abs(discriminant) <= math.SmallestNonzeroFloat32 {
 		return false, math.Inf(1)
 	}
 
@@ -41,5 +41,5 @@ func (s *Sphere) Intersect(r vector.Ray) (hit bool, length float64) {
 }
 
 func (s *Sphere) String() string {
-	return fmt.Sprintf("\t%s\t%f", s.center.String(), s.radius)
+	return fmt.Sprintf("\t%v\t%v", s.center, s.radius)
 }
