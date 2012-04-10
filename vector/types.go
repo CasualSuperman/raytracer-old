@@ -23,3 +23,7 @@ func Dot(v1, v2 Vectorer) float64 {
 			t1.Y * t2.Y +
 			t1.Z * t2.Z
 }
+
+func (v *Vec3) Vector() Vec3 {
+	return *v
+}
