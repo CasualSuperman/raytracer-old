@@ -5,7 +5,7 @@ import "math"
 import "raytracer/vector"
 
 type Sphere struct {
-	Shape
+	shape
 	center vector.Position
 	radius float64
 }
@@ -35,7 +35,7 @@ func (s *Sphere) Intersect(r vector.Ray) (hit bool, length float64) {
 	move.Scale(t)
 	hitPos.Displace(move)
 
-	s.Shape.Hit = hitPos
+	s.Hit = hitPos
 
 	return true, t
 }
