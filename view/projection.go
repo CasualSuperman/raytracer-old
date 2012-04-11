@@ -5,8 +5,8 @@ import "os"
 import "strconv"
 
 const (
-	TWO_DIMENSIONAL = 2
-	THREE_DIMENSIONAL = 3
+	TWO_DIMENSIONAL    = 2
+	THREE_DIMENSIONAL  = 3
 	NUM_REQ_PARAMETERS = 3
 )
 
@@ -30,7 +30,27 @@ func NewProjection() (Projection, error) {
 		return proj, fmt.Errorf("Unable to parse height or width.")
 	}
 
+	if height < 0 || width < 0 {
+		return proj, fmt.Errorf("Width and heigt must be positive.")
+	}
+
 	proj.Win_size_pixel[0], proj.Win_size_pixel[1] = width, height
+
+	num, err := fmt.Scanf("%f %f\n", &proj.Win_size_world[0],
+		&proj.Win_size_world[1])
+
+	if err != nil || num != TWO_DIMENSIONAL {
+		return proj, err
+	}
+
+	num, err = fmt.Scanf("%f %f %f\n", &proj.View_point[0],
+		&proj.View_point[1], &proj.View_point[2])
+
+	if err != nil || num != THREE_DIMENSIONAL {
+		return proj, err
+	}
+
+	fmt.Fprintln(os.Stderr, proj)
 
 	return proj, nil
 }
