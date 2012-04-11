@@ -14,7 +14,7 @@ const (
 )
 
 func main() {
-	proj, err := view.NewProjection()
+	proj, err := view.NewProjection(os.Stdin)
 
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
