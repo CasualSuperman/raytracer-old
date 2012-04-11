@@ -22,5 +22,4 @@ func main() {
 	}
 
 	view.NewModel(proj, nil, nil)
-
 }
