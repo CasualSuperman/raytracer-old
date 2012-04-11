@@ -16,6 +16,7 @@ func TestDot(t *testing.T) {
 			{Vec3{ 0, 10,  0}, Vec3{ 0, 10,  0}, 100},
 			{Vec3{ 3,  4,  5}, Vec3{ 1,  1,  1},  12},
 			{Vec3{ 2,  2,  3}, Vec3{ 3,  3,  2},  18},
+			{Vec3{ 1,  1,  1}, Vec3{-1, -1, -1},  -3},
 	}
 
 	for _, test := range cases {
