@@ -26,3 +26,7 @@ type shape struct {
 type Material struct {
 	Ambient, Diffuse, Specular [3]float64
 }
+
+func (s shape) String() string {
+	return ""
+}
