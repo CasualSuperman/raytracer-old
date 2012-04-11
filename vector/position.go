@@ -10,7 +10,7 @@ func Origin() Position {
 	return Position{0, 0, 0}
 }
 
-func (p *Position) Displace(d Direction) *Position{
+func (p *Position) Displace(d Direction) *Position {
 	p.X += d.X
 	p.Y += d.Y
 	p.Z += d.Z
