@@ -1,10 +1,13 @@
 package view
 
-import "bufio"
-import "fmt"
-import "io"
-import "os"
-import "strconv"
+import (
+	"bufio"
+	"fmt"
+	"io"
+	"os"
+	vec "raytracer/vector"
+	"strconv"
+)
 
 const (
 	TWO_DIMENSIONAL    = 2
@@ -13,9 +16,34 @@ const (
 )
 
 type Projection struct {
-	Win_size_pixel [TWO_DIMENSIONAL]int
-	Win_size_world [TWO_DIMENSIONAL]float64
-	View_point     [THREE_DIMENSIONAL]float64
+	WinSizePixel [TWO_DIMENSIONAL]int
+	WinSizeWorld [TWO_DIMENSIONAL]float64
+	Viewpoint     vec.Position
+}
+
+func NewProjection(input io.Reader) (p Projection, err error) {
+	err = loadProjectionPixels(&p)
+	in := bufio.NewReader(input)
+
+	if err != nil {
+		return
+	}
+
+	err = loadProjectionWorld(&p, in)
+
+	if err != nil {
+		return p, fmt.Errorf("Unable to load projection, error: %s",
+			err.Error())
+	}
+
+	err = loadProjectionViewPoint(&p, in)
+
+	if err != nil {
+		return p, fmt.Errorf("Unable to load viewpoint, error: %s",
+			err.Error())
+	}
+
+	return
 }
 
 func loadProjectionPixels(proj *Projection) error {
@@ -40,7 +68,7 @@ func loadProjectionPixels(proj *Projection) error {
 		return fmt.Errorf("Width and height must be positive.")
 	}
 
-	(*proj).Win_size_pixel[0], (*proj).Win_size_pixel[1] = width, height
+	(*proj).WinSizePixel[0], (*proj).WinSizePixel[1] = width, height
 
 	return nil
 }
@@ -62,8 +90,8 @@ func loadProjectionWorld(proj *Projection, input *bufio.Reader) (err error) {
 			return err
 		}
 
-		num, err = fmt.Sscanf(string(line), "%f %f", &(*proj).Win_size_world[0],
-			&(*proj).Win_size_world[1])
+		num, err = fmt.Sscanf(string(line), "%f %f", &(*proj).WinSizeWorld[0],
+			&(*proj).WinSizeWorld[1])
 	}
 
 	if num != TWO_DIMENSIONAL && err == nil {
@@ -91,8 +119,8 @@ func loadProjectionViewPoint(proj *Projection, input *bufio.Reader) (err error) 
 			return err
 		}
 
-		num, err = fmt.Sscanf(string(line), "%f %f %f", &(*proj).View_point[0],
-			&(*proj).View_point[1], &(*proj).View_point[2])
+		num, err = fmt.Sscanf(string(line), "%f %f %f", &(*proj).Viewpoint.X,
+			&(*proj).Viewpoint.Y, &(*proj).Viewpoint.Z)
 	}
 
 	if num != THREE_DIMENSIONAL && err == nil {
@@ -103,29 +131,12 @@ func loadProjectionViewPoint(proj *Projection, input *bufio.Reader) (err error) 
 	return err
 }
 
-func NewProjection(input io.Reader) (p Projection, err error) {
-	err = loadProjectionPixels(&p)
-	in := bufio.NewReader(input)
-
-	if err != nil {
-		return
-	}
-
-	err = loadProjectionWorld(&p, in)
-
-	if err != nil {
-		return p, fmt.Errorf("Unable to load projection, error: %s",
-			err.Error())
-	}
-
-	err = loadProjectionViewPoint(&p, in)
-
-	if err != nil {
-		return p, fmt.Errorf("Unable to load viewpoint, error: %s",
-			err.Error())
-	}
-
-	fmt.Fprintln(os.Stderr, p)
-
-	return
+func (p *Projection) String() string {
+	return fmt.Sprintf("Projection:" +
+			   "\n\tPixels: %d %d" +
+			   "\n\tWorld size: %f %f" +
+			   "\n\tViewpoint: %s",
+				p.WinSizePixel[0], p.WinSizePixel[1],
+				p.WinSizeWorld[0], p.WinSizeWorld[1],
+				p.Viewpoint)
 }
