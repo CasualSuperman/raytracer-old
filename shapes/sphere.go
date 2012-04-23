@@ -4,6 +4,7 @@ import "fmt"
 import "io"
 import "math"
 import "raytracer/vector"
+import "reflect"
 
 type Sphere struct {
 	shape
@@ -11,17 +12,22 @@ type Sphere struct {
 	radius float64
 }
 
-func (s *Sphere) Read(r io.Reader) error {
+func init() {
+	// This passes the type literal of Sphere to the function.
+	RegisterFormat(13, reflect.TypeOf((*Sphere)(nil)).Elem())
+}
+
+func (s *Sphere) read(r io.Reader) error {
 	err := s.shape.Read(r)
 	if err != nil {
 		return err
 	}
 
 	s.center.Read(r)
-	num, err := fmt.Sscanf("%f", r, &s.radius)
+	num, err := fmt.Fscanf(r, "%f", &s.radius)
 
 	for num == 0 && err == nil {
-		num, err = fmt.Sscanf("%f", r, &s.radius)
+		num, err = fmt.Fscanf(r, "%f", &s.radius)
 	}
 
 	return err

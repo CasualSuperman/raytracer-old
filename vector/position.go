@@ -1,6 +1,7 @@
 package vector
 
 import "fmt"
+import "io"
 
 func NewPosition(x, y, z float64) Position {
 	return Position{x, y, z}
@@ -40,4 +41,8 @@ func (p *Position) Vector() Vec3 {
 
 func (p *Position) Direction() *Direction {
 	return (*Direction)(p)
+}
+
+func (p *Position) Read(r io.Reader) error {
+	return ((*Vec3)(p)).Read(r)
 }

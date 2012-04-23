@@ -1,5 +1,8 @@
 package vector
 
+import "fmt"
+import "io"
+
 type Vec3 struct {
 	X, Y, Z float64
 }
@@ -26,4 +29,18 @@ func Dot(v1, v2 vectorer) float64 {
 
 func (v *Vec3) Vector() Vec3 {
 	return *v
+}
+
+func (v *Vec3) Read(r io.Reader) error {
+	count, err := fmt.Fscanf(r, "%d %d %d", &v.X, &v.Y, &v.Z)
+
+	for count == 0 && err == nil {
+		count, err = fmt.Fscanf(r, "%d %d %d", &v.X, &v.Y, &v.Z)
+	}
+
+	if count != 3 {
+		return fmt.Errorf("Tried to read a vector, only got %d values.", count)
+	}
+
+	return err
 }

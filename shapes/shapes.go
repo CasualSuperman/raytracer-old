@@ -1,6 +1,18 @@
 package shapes
 
+import "io"
 import "raytracer/vector"
+import "reflect"
+
+var types map[int]reflect.Type
+
+func init() {
+	types = make(map[int]reflect.Type)
+}
+
+func RegisterFormat(id int, object reflect.Type) {
+	types[id] = object
+}
 
 type Shape interface {
 	Intersector
@@ -23,10 +35,17 @@ type shape struct {
 	Hit vector.Position
 }
 
-type Material struct {
-	Ambient, Diffuse, Specular [3]float64
-}
-
 func (s shape) String() string {
 	return ""
+}
+
+func (s *shape) Read(r io.Reader) error {
+	err := s.Mat.Read(r)
+	if err != nil {
+		return err
+	}
+
+	err = s.Hit.Read(r)
+
+	return err
 }
