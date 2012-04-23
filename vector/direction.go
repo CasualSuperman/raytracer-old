@@ -67,3 +67,7 @@ func (d *Direction) String() string {
 func (d *Direction) Vector() Vec3 {
 	return Vec3(*d)
 }
+
+func (d *Direction) Position() *Position {
+	return (*Position)(d)
+}

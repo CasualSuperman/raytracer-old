@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"os"
 	vec "raytracer/vector"
 	"strconv"
 )
@@ -21,8 +20,8 @@ type Projection struct {
 	Viewpoint     vec.Position
 }
 
-func NewProjection(input io.Reader) (p Projection, err error) {
-	err = loadProjectionPixels(&p)
+func newProjection(args []string, input io.Reader) (p Projection, err error) {
+	err = loadProjectionPixels(&p, args)
 	in := bufio.NewReader(input)
 
 	if err != nil {
@@ -46,13 +45,13 @@ func NewProjection(input io.Reader) (p Projection, err error) {
 	return
 }
 
-func loadProjectionPixels(proj *Projection) error {
-	if len(os.Args) != NUM_REQ_PARAMETERS {
-		return fmt.Errorf("usage:\n\t%s width height", os.Args[0])
+func loadProjectionPixels(proj *Projection, args []string) error {
+	if len(args) != NUM_REQ_PARAMETERS {
+		return fmt.Errorf("usage:\n\t%s width height", args[0])
 	}
 
-	width, errW := strconv.Atoi(os.Args[1])
-	height, errH := strconv.Atoi(os.Args[2])
+	width, errW := strconv.Atoi(args[1])
+	height, errH := strconv.Atoi(args[2])
 
 	if errH != nil || errW != nil {
 		if errH != nil && errW != nil {
@@ -138,5 +137,5 @@ func (p *Projection) String() string {
 			   "\n\tViewpoint: %s",
 				p.WinSizePixel[0], p.WinSizePixel[1],
 				p.WinSizeWorld[0], p.WinSizeWorld[1],
-				p.Viewpoint)
+				p.Viewpoint.String())
 }

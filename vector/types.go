@@ -12,11 +12,11 @@ type Ray struct {
 	Direction
 }
 
-type Vectorer interface {
+type vectorer interface {
 	Vector() Vec3
 }
 
-func Dot(v1, v2 Vectorer) float64 {
+func Dot(v1, v2 vectorer) float64 {
 	t1 := v1.Vector()
 	t2 := v2.Vector()
 	return t1.X*t2.X +

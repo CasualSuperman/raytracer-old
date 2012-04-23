@@ -37,3 +37,7 @@ func (p Position) Copy() Position {
 func (p *Position) Vector() Vec3 {
 	return Vec3(*p)
 }
+
+func (p *Position) Direction() *Direction {
+	return (*Direction)(p)
+}

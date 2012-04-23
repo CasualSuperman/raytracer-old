@@ -14,12 +14,14 @@ const (
 )
 
 func main() {
-	proj, err := view.NewProjection(os.Stdin)
+	model := view.New()
+
+	err := model.LoadProjection(os.Args, os.Stdin)
 
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(EXIT_BAD_PARAMS)
 	}
 
-	view.NewModel(proj, nil, nil)
+	fmt.Fprintf(os.Stderr, "%s\n", model.Projection.String())
 }
