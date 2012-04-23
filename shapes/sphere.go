@@ -1,6 +1,7 @@
 package shapes
 
 import "fmt"
+import "io"
 import "math"
 import "raytracer/vector"
 
@@ -8,6 +9,22 @@ type Sphere struct {
 	shape
 	center vector.Position
 	radius float64
+}
+
+func (s *Sphere) Read(r io.Reader) error {
+	err := s.shape.Read(r)
+	if err != nil {
+		return err
+	}
+
+	s.center.Read(r)
+	num, err := fmt.Sscanf("%f", r, &s.radius)
+
+	for num == 0 && err == nil {
+		num, err = fmt.Sscanf("%f", r, &s.radius)
+	}
+
+	return err
 }
 
 func (s *Sphere) Intersect(r vector.Ray) (hit bool, length float64) {
