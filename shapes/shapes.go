@@ -1,6 +1,7 @@
 package shapes
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 	"raytracer/vector"
@@ -42,6 +43,49 @@ type shape struct {
 // Register a format with our list of readable formats.
 func RegisterFormat(id shapeId, reader shapeReader) {
 	types[id] = reader
+}
+
+func Read(r io.Reader) (shapes []Shape, err error) {
+
+	bufReader := bufio.NewReader(r)
+	scanning := true
+
+	for scanning {
+		count, num, line := 0, 0, []byte{}
+		// Read lines until we hit a line that works.
+		for err == nil && count == 0 {
+			line, _, err = bufReader.ReadLine()
+			fmt.Sscanf(string(line), "%d", &count)
+		}
+
+		if err == nil {
+			// We can continue.
+			reader, exists := types[shapeId(num)]
+
+			if !exists {
+				return nil, fmt.Errorf("Unknown type id %d.", num);
+			}
+
+			shape, err := reader(bufReader)
+
+			if err != nil {
+				return nil, err
+			}
+
+			shapes = append(shapes, shape)
+		} else {
+			// We ran into an error.
+			if err != io.EOF {
+				// Some other error.
+				return nil, fmt.Errorf("Unable to read shape id.")
+			} else {
+				// We're done here.
+				scanning = false
+			}
+		}
+	}
+
+	return shapes, nil
 }
 
 // Our internal counter for shapes.
