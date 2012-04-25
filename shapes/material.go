@@ -7,6 +7,12 @@ type Material struct {
 	Ambient, Diffuse, Specular [3]float64
 }
 
+func (m Material) String() string {
+	return fmt.Sprintf("\t%v\n\t%v\n\t%v\n", m.Ambient,
+											 m.Diffuse,
+											 m.Specular)
+}
+
 func (m *Material) Read(r io.Reader) error {
 	// Read the ambient.
 	count, err := fmt.Fscanf(r, "%d %d %d", &m.Ambient[0], &m.Ambient[1],

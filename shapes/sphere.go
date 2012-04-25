@@ -12,7 +12,6 @@ type Sphere struct {
 }
 
 func init() {
-	// This passes the type literal of Sphere to the function.
 	RegisterFormat(13, read)
 }
 
@@ -33,7 +32,7 @@ func read(r io.Reader) (Shape, error) {
 	return s, err
 }
 
-func (s *Sphere) Intersect(r vector.Ray) (hit bool, length float64) {
+func (s *Sphere) Hits(r vector.Ray) (hit bool, length float64) {
 	start := r.Position.Copy()
 	start.Displace(start.Offset(s.center))
 
@@ -61,10 +60,6 @@ func (s *Sphere) Intersect(r vector.Ray) (hit bool, length float64) {
 	s.Hit = hitPos
 
 	return true, t
-}
-
-func (s *Sphere) Next() Shape {
-	return s.shape.Next
 }
 
 func (s *Sphere) String() string {
