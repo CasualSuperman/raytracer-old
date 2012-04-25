@@ -4,7 +4,6 @@ import "fmt"
 import "io"
 import "math"
 import "raytracer/vector"
-import "reflect"
 
 type Sphere struct {
 	shape
@@ -14,7 +13,7 @@ type Sphere struct {
 
 func init() {
 	// This passes the type literal of Sphere to the function.
-	RegisterFormat(13, reflect.TypeOf((*Sphere)(nil)).Elem())
+	RegisterFormat(13, read)
 }
 
 func read(r io.Reader) (Shape, error) {

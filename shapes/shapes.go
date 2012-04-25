@@ -2,16 +2,17 @@ package shapes
 
 import "io"
 import "raytracer/vector"
-import "reflect"
 
-var types map[int]reflect.Type
+type shapeReader func(io.Reader)(Shape, error)
+
+var types map[int]shapeReader
 
 func init() {
-	types = make(map[int]reflect.Type)
+	types = make(map[int]shapeReader)
 }
 
-func RegisterFormat(id int, object reflect.Type) {
-	types[id] = object
+func RegisterFormat(id int, reader shapeReader) {
+	types[id] = reader
 }
 
 type Shape interface {

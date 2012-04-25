@@ -2,7 +2,6 @@ package shapes
 
 import (
 	vec "raytracer/vector"
-	"reflect"
 )
 
 type Light struct {
@@ -10,8 +9,7 @@ type Light struct {
 }
 
 func init() {
-	// This passes the type literal of Sphere to the function.
-	RegisterFormat(10, reflect.TypeOf((*Light)(nil)).Elem())
+//	RegisterFormat(10, reflect.TypeOf((*Light)(nil)).Elem())
 }
 
 
