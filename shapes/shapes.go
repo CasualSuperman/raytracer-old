@@ -7,7 +7,7 @@ import (
 )
 
 // A function pointer type.
-type shapeReader func(io.Reader)(Shape, error)
+type shapeReader func(io.Reader) (Shape, error)
 
 // A list of types that we know how to read in.
 var types = make(map[shapeId]shapeReader)
@@ -22,7 +22,7 @@ type Intersector interface {
 	/* Takes a normalized ray, and returns a boolean that says if it hit, and a
 	 * float64 that is the length of the ray when it hits the object.
 	 */
-	Hits(r vector.Ray) (bool, float64)
+	Hits(r vector.Ray) (bool, float64, vector.Ray)
 }
 
 // An alias of bytes to shapeId, but with actual type safety
@@ -30,7 +30,7 @@ type shapeId byte
 
 type shape struct {
 	// The global shape id.
-	Id   int
+	Id int
 	// The shape type.
 	Type shapeId
 	// The shape's material.
@@ -55,8 +55,8 @@ func (s shape) String() string {
 // Read in a shape from the given io.Reader, return an error on failure.
 func (s *shape) Read(r io.Reader) error {
 	// Give our shape an Id and increment it.
-	s.Id = shapeCounter;
-	shapeCounter++;
+	s.Id = shapeCounter
+	shapeCounter++
 
 	// Read in our material.
 	err := s.Mat.Read(r)

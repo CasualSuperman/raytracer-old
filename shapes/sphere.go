@@ -32,34 +32,38 @@ func read(r io.Reader) (Shape, error) {
 	return s, err
 }
 
-func (s *Sphere) Hits(r vector.Ray) (hit bool, length float64) {
+func (s *Sphere) Hits(r vector.Ray) (hit bool, length float64, spot vector.Ray) {
 	start := r.Position.Copy()
 	start.Displace(start.Offset(s.center))
 
-	ray := vector.NewRay(start, r.Direction.Copy())
-
 	radius := s.radius
 
-	a := vector.Dot(&ray.Direction, &ray.Direction)
-	b := 2 * vector.Dot(&ray.Position, &ray.Direction)
-	c := vector.Dot(&ray.Position, &ray.Position) - radius*radius
+	a := vector.Dot(&r.Direction, &r.Direction)
+	b := 2 * vector.Dot(&r.Position, &r.Direction)
+	c := vector.Dot(&r.Position, &r.Position) - radius*radius
 
 	discriminant := b*b - 4*a*c
 
 	if math.Abs(discriminant) <= math.SmallestNonzeroFloat32 {
-		return false, math.Inf(1)
+		return false, math.Inf(1), spot
 	}
 
-	t := (-b - math.Sqrt(discriminant)) / 2 * a
+	length = (-b - math.Sqrt(discriminant)) / 2 * a
 
 	move := r.Direction.Copy()
 	hitPos := r.Position.Copy()
-	move.Scale(t)
+	move.Scale(length)
 	hitPos.Displace(move)
 
-	s.Hit = hitPos
+	// Set the hit position to where we hit it.
+	spot.Position = hitPos
 
-	return true, t
+	// Start the direction at the hit position, and subtract the center of the
+	// sphere.
+	spot.Direction = *hitPos.Direction()
+	spot.Direction.Sub(s.center.Direction())
+
+	return
 }
 
 func (s *Sphere) String() string {

@@ -9,7 +9,5 @@ type Light struct {
 }
 
 func init() {
-//	RegisterFormat(10, reflect.TypeOf((*Light)(nil)).Elem())
+	//	RegisterFormat(10, reflect.TypeOf((*Light)(nil)).Elem())
 }
-
-

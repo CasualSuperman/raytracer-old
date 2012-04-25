@@ -9,18 +9,18 @@ type Material struct {
 
 func (m Material) String() string {
 	return fmt.Sprintf("\t%v\n\t%v\n\t%v\n", m.Ambient,
-											 m.Diffuse,
-											 m.Specular)
+		m.Diffuse,
+		m.Specular)
 }
 
 func (m *Material) Read(r io.Reader) error {
 	// Read the ambient.
 	count, err := fmt.Fscanf(r, "%d %d %d", &m.Ambient[0], &m.Ambient[1],
-											&m.Ambient[2])
+		&m.Ambient[2])
 
 	for count == 0 && err == nil {
 		count, err = fmt.Fscanf(r, "%d %d %d", &m.Ambient[0], &m.Ambient[1],
-												&m.Ambient[2])
+			&m.Ambient[2])
 	}
 
 	if count != 3 {
@@ -33,11 +33,11 @@ func (m *Material) Read(r io.Reader) error {
 
 	// Read the Diffuse
 	count, err = fmt.Fscanf(r, "%d %d %d", &m.Diffuse[0], &m.Diffuse[1],
-										   &m.Diffuse[2])
+		&m.Diffuse[2])
 
 	for count == 0 && err == nil {
 		count, err = fmt.Fscanf(r, "%d %d %d", &m.Diffuse[0], &m.Diffuse[1],
-											   &m.Diffuse[2])
+			&m.Diffuse[2])
 	}
 
 	if count != 3 {
@@ -50,11 +50,11 @@ func (m *Material) Read(r io.Reader) error {
 
 	// Read the Specular
 	count, err = fmt.Fscanf(r, "%d %d %d", &m.Specular[0], &m.Specular[1],
-										   &m.Specular[2])
+		&m.Specular[2])
 
 	for count == 0 && err == nil {
 		count, err = fmt.Fscanf(r, "%d %d %d", &m.Specular[0], &m.Specular[1],
-											   &m.Specular[2])
+			&m.Specular[2])
 	}
 
 	if count != 3 {
