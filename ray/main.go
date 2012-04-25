@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-//	vec "raytracer/vector"
-//	"raytracer/shapes"
 	"raytracer/view"
 	"os"
 )
