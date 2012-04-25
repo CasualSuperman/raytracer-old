@@ -17,10 +17,11 @@ func init() {
 	RegisterFormat(13, reflect.TypeOf((*Sphere)(nil)).Elem())
 }
 
-func (s *Sphere) read(r io.Reader) error {
+func read(r io.Reader) (Shape, error) {
+	s := new(Sphere)
 	err := s.shape.Read(r)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	s.center.Read(r)
@@ -30,7 +31,7 @@ func (s *Sphere) read(r io.Reader) error {
 		num, err = fmt.Fscanf(r, "%f", &s.radius)
 	}
 
-	return err
+	return s, err
 }
 
 func (s *Sphere) Intersect(r vector.Ray) (hit bool, length float64) {
@@ -61,6 +62,10 @@ func (s *Sphere) Intersect(r vector.Ray) (hit bool, length float64) {
 	s.Hit = hitPos
 
 	return true, t
+}
+
+func (s *Sphere) Next() Shape {
+	return s.shape.Next
 }
 
 func (s *Sphere) String() string {

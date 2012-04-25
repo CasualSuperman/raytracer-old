@@ -16,7 +16,7 @@ func RegisterFormat(id int, object reflect.Type) {
 
 type Shape interface {
 	Intersector
-	Next() *Shape
+	Next() Shape
 }
 
 type Intersector interface {
@@ -26,7 +26,7 @@ type Intersector interface {
 type ShapeId byte
 
 type shape struct {
-	Next *Shape
+	Next Shape
 	Id   int
 	Type ShapeId
 
