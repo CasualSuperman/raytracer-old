@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	d "raytracer/debug"
+	"raytracer/debug"
 	"raytracer/log"
 	"raytracer/vector"
 )
@@ -66,7 +66,7 @@ func Read(r *bufio.Reader) (shapes []Shape, err error) {
 			reader, exists := types[shapeId(num)]
 
 			if !exists {
-				if d.DEBUG_SHAPES {
+				if debug.SHAPES {
 					log.Printf("Exists, id, readCount, shapes: %v, %v, %v,\n%v\n", exists, num, count, types)
 				}
 				return nil, fmt.Errorf("Unknown type id %d.", num);
@@ -104,7 +104,7 @@ func (s shape) String() string {
 
 // Read in a shape from the given io.Reader, return an error on failure.
 func (s *shape) Read(r *bufio.Reader) error {
-	if d.DEBUG_SHAPES {
+	if debug.SHAPES {
 		log.Println("Reading in a shape.")
 	}
 	// Give our shape an Id and increment it.
@@ -113,7 +113,7 @@ func (s *shape) Read(r *bufio.Reader) error {
 
 	// Read in our material.
 	err := s.Mat.Read(r)
-	if d.DEBUG_SHAPES {
+	if debug.SHAPES {
 		log.Println("Read in material.")
 	}
 

@@ -1,7 +1,10 @@
 package vector
 
+import "bufio"
 import "fmt"
 import "math"
+import "raytracer/debug"
+import "raytracer/log"
 
 func NewDirection(x, y, z float64) Direction {
 	return Direction{x, y, z}
@@ -70,4 +73,30 @@ func (d *Direction) Vector() Vec3 {
 
 func (d *Direction) Position() *Position {
 	return (*Position)(d)
+}
+
+func (d *Direction) Read(r *bufio.Reader) (err error) {
+	err = nil
+	count, line := 0, []byte{}
+
+	for count == 0 && err == nil {
+		line, _, err = r.ReadLine()
+		if err == nil {
+			count, _ = fmt.Sscanf(string(line), "%f %f %f", &d.X, &d.Y, &d.Z)
+		}
+	}
+
+	if err != nil {
+		return err
+	}
+
+	if count != 3 {
+		return fmt.Errorf("Tried to read a position, only got %d values.", count)
+	}
+
+	if debug.INPUT {
+		log.Println("Read direction:", d)
+	}
+
+	return nil
 }

@@ -3,7 +3,7 @@ package shapes
 import "bufio"
 import "fmt"
 import "math"
-import d "raytracer/debug"
+import "raytracer/debug"
 import "raytracer/log"
 import "raytracer/vector"
 
@@ -14,11 +14,11 @@ type Sphere struct {
 }
 
 func init() {
-	RegisterFormat(13, read)
+	RegisterFormat(13, readSphere)
 }
 
-func read(r *bufio.Reader) (Shape, error) {
-	if d.DEBUG_SPHERES {
+func readSphere(r *bufio.Reader) (Shape, error) {
+	if debug.SPHERES {
 		log.Println("Reading in a sphere.")
 	}
 	s := new(Sphere)
@@ -27,13 +27,13 @@ func read(r *bufio.Reader) (Shape, error) {
 		return nil, err
 	}
 
-	if d.DEBUG_SPHERES {
+	if debug.SPHERES {
 		log.Println("Loading Sphere center")
 	}
 
 	s.Center.Read(r)
 
-	if d.DEBUG_SPHERES {
+	if debug.SPHERES {
 		log.Println("Loading Sphere radius")
 	}
 
@@ -46,7 +46,7 @@ func read(r *bufio.Reader) (Shape, error) {
 		}
 	}
 
-	if d.DEBUG_SPHERES {
+	if debug.SPHERES {
 		if err == nil {
 			log.Println(s.String())
 		} else {

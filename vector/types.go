@@ -2,7 +2,7 @@ package vector
 
 import "bufio"
 import "fmt"
-import d "raytracer/debug"
+import "raytracer/debug"
 import "raytracer/log"
 
 type Vec3 struct {
@@ -29,6 +29,10 @@ func Dot(v1, v2 vectorer) float64 {
 		t1.Z*t2.Z
 }
 
+func IsZero(num float64) bool {
+	return num < 0.00001 && num > -0.00001
+}
+
 func (v *Vec3) Vector() Vec3 {
 	return *v
 }
@@ -51,7 +55,7 @@ func (v *Vec3) Read(r *bufio.Reader) (err error) {
 		return fmt.Errorf("Tried to read a vector, only got %d values.", count)
 	}
 
-	if d.DEBUG_INPUT {
+	if debug.INPUT {
 		log.Println("Read vector:", v)
 	}
 
