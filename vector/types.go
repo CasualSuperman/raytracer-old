@@ -1,7 +1,9 @@
 package vector
 
+import "bufio"
 import "fmt"
-import "io"
+import d "raytracer/debug"
+import "raytracer/log"
 
 type Vec3 struct {
 	X, Y, Z float64
@@ -31,16 +33,27 @@ func (v *Vec3) Vector() Vec3 {
 	return *v
 }
 
-func (v *Vec3) Read(r io.Reader) error {
-	count, err := fmt.Fscanf(r, "%d %d %d", &v.X, &v.Y, &v.Z)
+func (v *Vec3) Read(r *bufio.Reader) (err error) {
+	count, line := 0, []byte{}
 
 	for count == 0 && err == nil {
-		count, err = fmt.Fscanf(r, "%d %d %d", &v.X, &v.Y, &v.Z)
+		line, _, err = r.ReadLine()
+		if err == nil {
+			count, err = fmt.Sscanf(string(line), "%f %f %f", &v.X, &v.Y, &v.Z)
+		}
+	}
+
+	if err != nil {
+		return err
 	}
 
 	if count != 3 {
 		return fmt.Errorf("Tried to read a vector, only got %d values.", count)
 	}
 
-	return err
+	if d.DEBUG_INPUT {
+		log.Println("Read vector:", v)
+	}
+
+	return nil
 }

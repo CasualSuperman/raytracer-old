@@ -4,11 +4,13 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	d "raytracer/debug"
+	"raytracer/log"
 	"raytracer/vector"
 )
 
 // A function pointer type.
-type shapeReader func(io.Reader) (Shape, error)
+type shapeReader func(*bufio.Reader) (Shape, error)
 
 // A list of types that we know how to read in.
 var types = make(map[shapeId]shapeReader)
@@ -27,7 +29,7 @@ type Intersector interface {
 }
 
 // An alias of bytes to shapeId, but with actual type safety
-type shapeId byte
+type shapeId int
 
 type shape struct {
 	// The global shape id.
@@ -45,17 +47,18 @@ func RegisterFormat(id shapeId, reader shapeReader) {
 	types[id] = reader
 }
 
-func Read(r io.Reader) (shapes []Shape, err error) {
-
-	bufReader := bufio.NewReader(r)
+func Read(r *bufio.Reader) (shapes []Shape, err error) {
+	err = nil
 	scanning := true
 
 	for scanning {
 		count, num, line := 0, 0, []byte{}
 		// Read lines until we hit a line that works.
 		for err == nil && count == 0 {
-			line, _, err = bufReader.ReadLine()
-			fmt.Sscanf(string(line), "%d", &count)
+			line, _, err = r.ReadLine()
+			if err == nil {
+				count, _ = fmt.Sscanf(string(line), "%d", &num)
+			}
 		}
 
 		if err == nil {
@@ -63,10 +66,13 @@ func Read(r io.Reader) (shapes []Shape, err error) {
 			reader, exists := types[shapeId(num)]
 
 			if !exists {
+				if d.DEBUG_SHAPES {
+					log.Printf("Exists, id, readCount, shapes: %v, %v, %v,\n%v\n", exists, num, count, types)
+				}
 				return nil, fmt.Errorf("Unknown type id %d.", num);
 			}
 
-			shape, err := reader(bufReader)
+			shape, err := reader(r)
 
 			if err != nil {
 				return nil, err
@@ -93,16 +99,23 @@ var shapeCounter = 0
 
 // Pretty-print shape information.
 func (s shape) String() string {
-	return fmt.Sprintf("\tid: %d\n\tMaterial: %s\n", s.Id, s.Mat.String())
+	return fmt.Sprintf("id: %d\n\tMaterial: \n%s", s.Id, s.Mat.String())
 }
 
 // Read in a shape from the given io.Reader, return an error on failure.
-func (s *shape) Read(r io.Reader) error {
+func (s *shape) Read(r *bufio.Reader) error {
+	if d.DEBUG_SHAPES {
+		log.Println("Reading in a shape.")
+	}
 	// Give our shape an Id and increment it.
 	s.Id = shapeCounter
 	shapeCounter++
 
 	// Read in our material.
 	err := s.Mat.Read(r)
+	if d.DEBUG_SHAPES {
+		log.Println("Read in material.")
+	}
+
 	return err
 }

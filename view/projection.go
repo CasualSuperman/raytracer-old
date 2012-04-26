@@ -3,7 +3,6 @@ package view
 import (
 	"bufio"
 	"fmt"
-	"io"
 	vec "raytracer/vector"
 	"strconv"
 )
@@ -20,9 +19,8 @@ type Projection struct {
 	Viewpoint     vec.Position
 }
 
-func newProjection(args []string, input io.Reader) (p Projection, err error) {
+func newProjection(args []string, in *bufio.Reader) (p Projection, err error) {
 	err = loadProjectionPixels(&p, args)
-	in := bufio.NewReader(input)
 
 	if err != nil {
 		return
@@ -46,7 +44,7 @@ func newProjection(args []string, input io.Reader) (p Projection, err error) {
 }
 
 func loadProjectionPixels(proj *Projection, args []string) error {
-	if len(args) != NUM_REQ_PARAMETERS {
+	if len(args) != NUM_REQ_PARAMETERS && len(args) - 1 != NUM_REQ_PARAMETERS {
 		return fmt.Errorf("usage:\n\t%s width height", args[0])
 	}
 

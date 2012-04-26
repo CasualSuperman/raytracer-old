@@ -1,6 +1,6 @@
 package view
 
-import "io"
+import "bufio"
 import "raytracer/shapes"
 
 type Model struct {
@@ -13,7 +13,7 @@ func New() Model {
 	return Model{}
 }
 
-func (m *Model) LoadProjection(args []string, input io.Reader) (err error) {
+func (m *Model) LoadProjection(args []string, input *bufio.Reader) (err error) {
 	m.Projection, err = newProjection(args, input)
 	return
 }

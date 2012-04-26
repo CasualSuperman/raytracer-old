@@ -1,42 +1,67 @@
 package shapes
 
+import "bufio"
 import "fmt"
-import "io"
 import "math"
+import d "raytracer/debug"
+import "raytracer/log"
 import "raytracer/vector"
 
 type Sphere struct {
 	shape
-	center vector.Position
-	radius float64
+	Center vector.Position
+	Radius float64
 }
 
 func init() {
 	RegisterFormat(13, read)
 }
 
-func read(r io.Reader) (Shape, error) {
+func read(r *bufio.Reader) (Shape, error) {
+	if d.DEBUG_SPHERES {
+		log.Println("Reading in a sphere.")
+	}
 	s := new(Sphere)
 	err := s.shape.Read(r)
 	if err != nil {
 		return nil, err
 	}
 
-	s.center.Read(r)
-	num, err := fmt.Fscanf(r, "%f", &s.radius)
-
-	for num == 0 && err == nil {
-		num, err = fmt.Fscanf(r, "%f", &s.radius)
+	if d.DEBUG_SPHERES {
+		log.Println("Loading Sphere center")
 	}
 
-	return s, err
+	s.Center.Read(r)
+
+	if d.DEBUG_SPHERES {
+		log.Println("Loading Sphere radius")
+	}
+
+	count, line := 0, []byte{}
+
+	for count == 0 && err == nil {
+		line, _, err = r.ReadLine()
+		if err == nil {
+			count, _ = fmt.Sscanf(string(line), "%f", &s.Radius)
+		}
+	}
+
+	if d.DEBUG_SPHERES {
+		if err == nil {
+			log.Println(s.String())
+		} else {
+			log.Println("Could not read sphere.")
+		}
+	}
+
+	return s, nil
 }
 
 func (s *Sphere) Hits(r vector.Ray) (hit bool, length float64, spot vector.Ray) {
 	start := r.Position.Copy()
-	start.Displace(start.Offset(s.center))
+	start.Displace(start.Offset(s.Center))
 
-	radius := s.radius
+	radius := s.Radius
 
 	a := vector.Dot(&r.Direction, &r.Direction)
 	b := 2 * vector.Dot(&r.Position, &r.Direction)
@@ -61,12 +86,12 @@ func (s *Sphere) Hits(r vector.Ray) (hit bool, length float64, spot vector.Ray) 
 	// Start the direction at the hit position, and subtract the center of the
 	// sphere.
 	spot.Direction = *hitPos.Direction()
-	spot.Direction.Sub(s.center.Direction())
+	spot.Direction.Sub(s.Center.Direction())
 
 	return
 }
 
 func (s *Sphere) String() string {
-	return fmt.Sprintf("Sphere:\n\t%v\n\t%v\n\t%v", s.shape.String(), s.center,
-		s.radius)
+	return fmt.Sprintf("Sphere:\n\t%v\n\tcenter:\n\t%v\n\tradius:\n\t%v",
+						s.shape.String(), s.Center.String(), s.Radius)
 }

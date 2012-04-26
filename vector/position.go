@@ -1,7 +1,9 @@
 package vector
 
+import "bufio"
 import "fmt"
-import "io"
+import d "raytracer/debug"
+import "raytracer/log"
 
 func NewPosition(x, y, z float64) Position {
 	return Position{x, y, z}
@@ -43,6 +45,28 @@ func (p *Position) Direction() *Direction {
 	return (*Direction)(p)
 }
 
-func (p *Position) Read(r io.Reader) error {
-	return ((*Vec3)(p)).Read(r)
+func (p *Position) Read(r *bufio.Reader) (err error) {
+	err = nil
+	count, line := 0, []byte{}
+
+	for count == 0 && err == nil {
+		line, _, err = r.ReadLine()
+		if err == nil {
+			count, _ = fmt.Sscanf(string(line), "%f %f %f", &p.X, &p.Y, &p.Z)
+		}
+	}
+
+	if err != nil {
+		return err
+	}
+
+	if count != 3 {
+		return fmt.Errorf("Tried to read a position, only got %d values.", count)
+	}
+
+	if d.DEBUG_INPUT {
+		log.Println("Read position:", p)
+	}
+
+	return nil
 }

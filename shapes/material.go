@@ -1,65 +1,35 @@
 package shapes
 
-import "io"
+import "bufio"
 import "fmt"
+import "raytracer/vector"
 
 type Material struct {
-	Ambient, Diffuse, Specular [3]float64
+	Ambient, Diffuse, Specular vector.Vec3
 }
 
 func (m Material) String() string {
-	return fmt.Sprintf("\t%v\n\t%v\n\t%v\n", m.Ambient,
-		m.Diffuse,
-		m.Specular)
+	return fmt.Sprintf("\t%v\n\t%v\n\t%v",
+		m.Ambient, m.Diffuse, m.Specular)
 }
 
-func (m *Material) Read(r io.Reader) error {
-	// Read the ambient.
-	count, err := fmt.Fscanf(r, "%d %d %d", &m.Ambient[0], &m.Ambient[1],
-		&m.Ambient[2])
-
-	for count == 0 && err == nil {
-		count, err = fmt.Fscanf(r, "%d %d %d", &m.Ambient[0], &m.Ambient[1],
-			&m.Ambient[2])
-	}
-
-	if count != 3 {
-		return fmt.Errorf("Tried to read ambient, only got %d values.", count)
-	}
+func (m *Material) Read(r *bufio.Reader) error {
+	err := m.Ambient.Read(r)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("Failed to read in ambient: %v", err)
 	}
 
-	// Read the Diffuse
-	count, err = fmt.Fscanf(r, "%d %d %d", &m.Diffuse[0], &m.Diffuse[1],
-		&m.Diffuse[2])
-
-	for count == 0 && err == nil {
-		count, err = fmt.Fscanf(r, "%d %d %d", &m.Diffuse[0], &m.Diffuse[1],
-			&m.Diffuse[2])
-	}
-
-	if count != 3 {
-		return fmt.Errorf("Tried to read diffuse, only got %d values.", count)
-	}
+	err = m.Diffuse.Read(r)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("Failed to read in diffuse: %v", err)
 	}
 
-	// Read the Specular
-	count, err = fmt.Fscanf(r, "%d %d %d", &m.Specular[0], &m.Specular[1],
-		&m.Specular[2])
+	err = m.Specular.Read(r)
 
-	for count == 0 && err == nil {
-		count, err = fmt.Fscanf(r, "%d %d %d", &m.Specular[0], &m.Specular[1],
-			&m.Specular[2])
+	if err != nil {
+		return fmt.Errorf("Failed to read in specular: %v", err)
 	}
-
-	if count != 3 {
-		return fmt.Errorf("Tried to read specular, only got %d values.", count)
-	}
-
-	return err
+	return nil
 }
