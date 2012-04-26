@@ -92,5 +92,5 @@ func (p *Plane) Hits(r vector.Ray) (hit bool, length float64, spot vector.Ray) {
 
 func (p *Plane) String() string {
 	return fmt.Sprintf("Plane:\n\t%v\n\tcenter:\n\t%v\n\tnormal:\n\t%v",
-						p.shape.String(), p.Center.String(), p.Normal.String())
+		p.shape.String(), p.Center.String(), p.Normal.String())
 }

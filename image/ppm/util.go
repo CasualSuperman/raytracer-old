@@ -11,7 +11,7 @@ func isWhitespace(char byte) bool {
 func consumeWhitespace(r io.ByteScanner) (int, error) {
 	total := 0
 	char, err := r.ReadByte()
-	for isWhitespace(char) && err == nil  {
+	for isWhitespace(char) && err == nil {
 		total++
 		read, err = r.ReadByte()
 	}

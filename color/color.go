@@ -6,7 +6,7 @@ import (
 )
 
 type Image struct {
-	base []byte
+	base          []byte
 	height, width int
 }
 
@@ -25,7 +25,7 @@ func (i Image) PPM(w io.Writer) {
 }
 
 func (i Image) SetPixel(x, y int, r, g, b uint8) {
-	i.base[((x * i.width) + y) * 3 + 0] = r
-	i.base[((x * i.width) + y) * 3 + 1] = g
-	i.base[((x * i.width) + y) * 3 + 2] = b
+	i.base[((x*i.width)+y)*3+0] = r
+	i.base[((x*i.width)+y)*3+1] = g
+	i.base[((x*i.width)+y)*3+2] = b
 }

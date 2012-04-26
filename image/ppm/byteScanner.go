@@ -15,9 +15,9 @@ func (e unreadError) Error() string {
 }
 
 type byteScanner struct {
-	r		io.Reader
-	last	byte
-	unread	bool
+	r      io.Reader
+	last   byte
+	unread bool
 }
 
 func (b *byteScanner) UnreadByte() error {

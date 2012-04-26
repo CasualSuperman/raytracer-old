@@ -1,23 +1,23 @@
 package ppm
 
 import (
-	 "encoding/binary"
-	 "fmt"
-	 "image"
-	 "image/color"
-	 "io"
+	"encoding/binary"
+	"fmt"
+	"image"
+	"image/color"
+	"io"
 )
 
 const (
 	magicPlainPPM = "P3"
-	magicPPM = "P6"
+	magicPPM      = "P6"
 )
 
 type decoder struct {
-	r				io.ByteScanner
-	img				image.Image
-	width, height	int
-	maxVal			uint16
+	r             io.ByteScanner
+	img           image.Image
+	width, height int
+	maxVal        uint16
 }
 
 type decoderP6 decoder
@@ -102,7 +102,7 @@ func (d *decoderP6) readMaxVal() (uint16, error) {
 
 	val, err := strconv.Atoi(max)
 
-	if (val >= (1 << 16)) || val < 0  {
+	if (val >= (1 << 16)) || val < 0 {
 		return 0, FormatError("Invalid maximum pixel size.")
 	}
 

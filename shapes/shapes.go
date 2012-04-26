@@ -69,7 +69,7 @@ func Read(r *bufio.Reader) (shapes []Shape, err error) {
 				if debug.SHAPES {
 					log.Printf("Exists, id, readCount, shapes: %v, %v, %v,\n%v\n", exists, num, count, types)
 				}
-				return nil, fmt.Errorf("Unknown type id %d.", num);
+				return nil, fmt.Errorf("Unknown type id %d.", num)
 			}
 
 			shape, err := reader(r)

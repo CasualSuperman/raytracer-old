@@ -16,7 +16,7 @@ const (
 type Projection struct {
 	WinSizePixel [TWO_DIMENSIONAL]int
 	WinSizeWorld [TWO_DIMENSIONAL]float64
-	Viewpoint     vec.Position
+	Viewpoint    vec.Position
 }
 
 func newProjection(args []string, in *bufio.Reader) (p Projection, err error) {
@@ -44,7 +44,7 @@ func newProjection(args []string, in *bufio.Reader) (p Projection, err error) {
 }
 
 func loadProjectionPixels(proj *Projection, args []string) error {
-	if len(args) != NUM_REQ_PARAMETERS && len(args) - 1 != NUM_REQ_PARAMETERS {
+	if len(args) != NUM_REQ_PARAMETERS && len(args)-1 != NUM_REQ_PARAMETERS {
 		return fmt.Errorf("usage:\n\t%s width height", args[0])
 	}
 
@@ -129,11 +129,11 @@ func loadProjectionViewPoint(proj *Projection, input *bufio.Reader) (err error) 
 }
 
 func (p *Projection) String() string {
-	return fmt.Sprintf("Projection:" +
-			   "\n\tPixels: %d %d" +
-			   "\n\tWorld size: %f %f" +
-			   "\n\tViewpoint: %s",
-				p.WinSizePixel[0], p.WinSizePixel[1],
-				p.WinSizeWorld[0], p.WinSizeWorld[1],
-				p.Viewpoint.String())
+	return fmt.Sprintf("Projection:"+
+		"\n\tPixels: %d %d"+
+		"\n\tWorld size: %f %f"+
+		"\n\tViewpoint: %s",
+		p.WinSizePixel[0], p.WinSizePixel[1],
+		p.WinSizeWorld[0], p.WinSizeWorld[1],
+		p.Viewpoint.String())
 }

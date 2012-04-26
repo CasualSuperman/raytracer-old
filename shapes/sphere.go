@@ -93,5 +93,5 @@ func (s *Sphere) Hits(r vector.Ray) (hit bool, length float64, spot vector.Ray) 
 
 func (s *Sphere) String() string {
 	return fmt.Sprintf("Sphere:\n\t%v\n\tcenter:\n\t%v\n\tradius:\n\t%v",
-						s.shape.String(), s.Center.String(), s.Radius)
+		s.shape.String(), s.Center.String(), s.Radius)
 }

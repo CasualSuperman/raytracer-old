@@ -3,10 +3,11 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"os"
 	"raytracer/log"
 	"raytracer/shapes"
+	"raytracer/trace"
 	"raytracer/view"
-	"os"
 )
 
 func main() {
