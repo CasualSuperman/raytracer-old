@@ -8,9 +8,11 @@ import (
 	"raytracer/shapes"
 	"raytracer/trace"
 	"raytracer/view"
+	"runtime"
 )
 
 func main() {
+	runtime.GOMAXPROCS(runtime.NumCPU())
 	stdin := bufio.NewReader(os.Stdin)
 	model := view.New()
 
