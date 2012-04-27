@@ -41,36 +41,47 @@ func MakeImage(m *view.Model) {
 		log.Println(*m)
 	}
 
-	work := make([]pixelSegment, goroutines * goroutines)
-
-	for i := 0; i < goroutines; i++ {
-		for j := 0; j < goroutines; j++ {
-			segment := &work[i * goroutines + j]
-
-			segment.Min.X = image.Width() / goroutines * (i + 0)
-			segment.Max.X = image.Width() / goroutines * (i + 1)
-
-			segment.Min.Y = image.Height() / goroutines * (j + 0)
-			segment.Max.Y = image.Height() / goroutines * (j + 1)
+	if debug.ANY {
+		// If any debugging is turned on, we want to do this in a single thread.
+		// That prevents the log messages from showing up inside each other.
+		for y := 0; y < image.Height(); y++ {
+			for x := 0; x < image.Width(); x++ {
+				makePixel(m, x, y, image)
+			}
 		}
-	}
+	} else {
+		// Otherwise, split up the work between the cores!
+		work := make([]pixelSegment, goroutines * goroutines)
 
-	done := make(chan bool)
+		for i := 0; i < goroutines; i++ {
+			for j := 0; j < goroutines; j++ {
+				segment := &work[i * goroutines + j]
 
-	// Kick off as many threads as we have cores.
-	for i := 0; i < goroutines; i++ {
-		go makePixelSegment(done, m, image, &work[i])
-	}
+				segment.Min.X = image.Width() / goroutines * (i + 0)
+				segment.Max.X = image.Width() / goroutines * (i + 1)
 
-	// Start a new goroutine every time we get a result back, keep the CPU busy
-	for i := goroutines; i < goroutines * goroutines; i++ {
-		<-done
-		go makePixelSegment(done, m, image, &work[i])
-	}
+				segment.Min.Y = image.Height() / goroutines * (j + 0)
+				segment.Max.Y = image.Height() / goroutines * (j + 1)
+			}
+		}
 
-	// Wait for the last few to finish
-	for i := 0; i < goroutines; i++ {
-		<-done
+		done := make(chan bool)
+
+		// Kick off as many threads as we have cores.
+		for i := 0; i < goroutines; i++ {
+			go makePixelSegment(done, m, image, &work[i])
+		}
+
+		// Start a new goroutine every time we get a result back, keep the CPU busy
+		for i := goroutines; i < goroutines * goroutines; i++ {
+			<-done
+			go makePixelSegment(done, m, image, &work[i])
+		}
+
+		// Wait for the last few to finish
+		for i := 0; i < goroutines; i++ {
+			<-done
+		}
 	}
 
 	image.PPM(os.Stdout)
