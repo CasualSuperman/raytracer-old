@@ -13,11 +13,10 @@ func Origin() Position {
 	return Position{0, 0, 0}
 }
 
-func (p *Position) Displace(d Direction) *Position {
+func (p *Position) Displace(d Direction) {
 	p.X += d.X
 	p.Y += d.Y
 	p.Z += d.Z
-	return p
 }
 
 /* Returns a Direction from the source to the target */
@@ -30,7 +29,7 @@ func (source *Position) Offset(target Position) Direction {
 }
 
 func (p *Position) String() string {
-	return fmt.Sprintf("<%f, %f, %f>", p.X, p.Y, p.Z)
+	return fmt.Sprintf("<%.3f, %.3f, %.3f>", p.X, p.Y, p.Z)
 }
 
 func (p Position) Copy() Position {
