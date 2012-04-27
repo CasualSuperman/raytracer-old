@@ -5,12 +5,14 @@ import (
 	"io"
 )
 
+type Pixel []byte
+
 type Image struct {
 	base          []byte
 	height, width int
 }
 
-func NewImage(x, y int) (i Image) {
+func New(x, y int) (i Image) {
 	i.base = make([]byte, x*y*3)
 	i.height = y
 	i.width = x
@@ -25,7 +27,19 @@ func (i Image) PPM(w io.Writer) {
 }
 
 func (i Image) SetPixel(x, y int, r, g, b uint8) {
-	i.base[((x*i.width)+y)*3+0] = r
-	i.base[((x*i.width)+y)*3+1] = g
-	i.base[((x*i.width)+y)*3+2] = b
+	i.base[((y*i.width)+x)*3+0] = r
+	i.base[((y*i.width)+x)*3+1] = g
+	i.base[((y*i.width)+x)*3+2] = b
+}
+
+func (i Image) Width() int {
+	return i.width
+}
+
+func (i Image) Height() int {
+	return i.height
+}
+
+func (i Image) GetPixel(x, y int) Pixel {
+	return i.base[((y*i.width)+x)*3:((y*i.width)+x + 1)*3]
 }

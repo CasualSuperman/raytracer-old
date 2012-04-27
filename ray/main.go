@@ -22,13 +22,15 @@ func main() {
 
 	fmt.Fprintf(os.Stderr, "%s\n", model.Projection.String())
 
-	shapes, err := shapes.Read(stdin)
+	err = shapes.Read(stdin, &model.Shapes, &model.Lights)
 
 	if err != nil {
 		log.Fatalln("Unable to read shapes.", err)
 	}
 
-	for _, shape := range shapes {
+	for _, shape := range model.Shapes {
 		log.Println(shape)
 	}
+
+	trace.MakeImage(&model)
 }

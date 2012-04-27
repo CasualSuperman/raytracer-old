@@ -14,7 +14,7 @@ type Sphere struct {
 }
 
 func init() {
-	RegisterFormat(13, readSphere)
+	RegisterShapeFormat(13, readSphere)
 }
 
 func readSphere(r *bufio.Reader) (Shape, error) {
@@ -58,25 +58,50 @@ func readSphere(r *bufio.Reader) (Shape, error) {
 }
 
 func (s *Sphere) Hits(r vector.Ray) (hit bool, length float64, spot vector.Ray) {
-	start := r.Position.Copy()
-	start.Displace(start.Offset(s.Center))
+/*
+	if debug.SPHERES {
+		log.Println("Ray:")
+		log.Println("\tPosition:", r.Position)
+		log.Println("\tDirection", r.Direction)
+		log.Println("Sphere:")
+		log.Println("\tCenter:", s.Center)
+		log.Println("\tRadius:", s.Radius)
+	}
+*/
 
 	radius := s.Radius
 
+	newPos := r.Position.Copy()
+
+	offset := s.Center.Copy()
+	newPos.Displace(offset.Offset(vector.Origin()))
+
+	if debug.SPHERES {
+		log.Println(newPos)
+	}
+
 	a := vector.Dot(&r.Direction, &r.Direction)
-	b := 2 * vector.Dot(&r.Position, &r.Direction)
-	c := vector.Dot(&r.Position, &r.Position) - radius*radius
+	b := 2 * vector.Dot(&newPos, &r.Direction)
+	c := vector.Dot(&newPos, &newPos) - radius*radius
+
+	if debug.SPHERES {
+		log.Printf("a: %f, b: %f, c: %f\n", a, b, c)
+	}
 
 	discriminant := b*b - 4*a*c
 
-	if math.Abs(discriminant) <= math.SmallestNonzeroFloat32 {
+	if discriminant <= 0 {
 		return false, math.Inf(1), spot
 	}
 
-	length = (-b - math.Sqrt(discriminant)) / 2 * a
+	length = (-b - math.Sqrt(discriminant)) / (2 * a)
+
+	if debug.SPHERES {
+		log.Printf("Sphere discriminant is %f, (T = %f)\n", discriminant, length)
+	}
 
 	move := r.Direction.Copy()
-	hitPos := r.Position.Copy()
+	hitPos := newPos.Copy()
 	move.Scale(length)
 	hitPos.Displace(move)
 
@@ -88,7 +113,21 @@ func (s *Sphere) Hits(r vector.Ray) (hit bool, length float64, spot vector.Ray) 
 	spot.Direction = *hitPos.Direction()
 	spot.Direction.Sub(s.Center.Direction())
 
+	hit = true
+
 	return
+}
+
+func (s *Sphere) Ambient(p *vector.Position) vector.Vec3 {
+	return s.shape.Mat.Ambient
+}
+
+func (s *Sphere) Diffuse(p *vector.Position) vector.Vec3 {
+	return s.shape.Mat.Diffuse
+}
+
+func (s *Sphere) Specular(p *vector.Position) vector.Vec3 {
+	return s.shape.Mat.Specular
 }
 
 func (s *Sphere) String() string {

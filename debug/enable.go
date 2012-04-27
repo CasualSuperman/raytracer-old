@@ -1,8 +1,11 @@
 package debug
 
 const (
-	INPUT   = false
-	PLANES  = false
-	SHAPES  = false
-	SPHERES = false
+	HITS     = false
+	IMAGE    = false
+	INPUT    = false
+	RAYTRACE = false
+	PLANES   = false
+	SHAPES   = false
+	SPHERES  = false
 )

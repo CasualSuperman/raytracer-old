@@ -13,7 +13,7 @@ type Plane struct {
 }
 
 func init() {
-	RegisterFormat(14, readPlane)
+	RegisterShapeFormat(14, readPlane)
 }
 
 func readPlane(r *bufio.Reader) (Shape, error) {
@@ -27,20 +27,20 @@ func readPlane(r *bufio.Reader) (Shape, error) {
 	}
 
 	if debug.PLANES {
-		log.Println("Loading Plane center")
+		log.Println("Loading Plane normal")
 	}
 
-	err = p.Center.Read(r)
+	err = p.Normal.Read(r)
 
 	if err != nil {
 		return nil, err
 	}
 
 	if debug.PLANES {
-		log.Println("Loading Plane normal")
+		log.Println("Loading Plane center")
 	}
 
-	err = p.Normal.Read(r)
+	err = p.Center.Read(r)
 
 	if debug.PLANES {
 		if err == nil {
@@ -59,35 +59,75 @@ func readPlane(r *bufio.Reader) (Shape, error) {
 
 func (p *Plane) Hits(r vector.Ray) (hit bool, length float64, spot vector.Ray) {
 	// Plane normal dot ray direction
-	nd := vector.Dot(&p.Normal, &r.Direction)
+	Q := p.Center
+	N := p.Normal
+	D := r.Direction
+	V := r.Position
+	P := vector.Origin()
+	n_dot_d := vector.Dot(&N, &D)
+	T := 0.0
 
-	if vector.IsZero(nd) {
+	if debug.PLANES {
+		log.Println("Shooting ray starting at", r.Position, "heading", r.Direction, "at plane with center", p.Center, "and normal", p.Normal)
+		log.Println("n dot d =", n_dot_d)
+	}
+
+	if vector.IsZero(n_dot_d) {
 		if debug.PLANES {
-			log.Println("Plane is parallel.")
+			log.Printf("Plane is parallel (n dot d = %f).\n", n_dot_d)
 		}
 		return false, length, spot
 	}
 
-	length = (vector.Dot(&p.Normal, &p.Center) - vector.Dot(&p.Normal, &r.Position)) / nd
+	n_dot_q := vector.Dot(&N, &Q)
+	n_dot_v := vector.Dot(&N, &V)
 
-	spot.Position = *(r.Direction.Position())
-	spot.Position.Direction().Scale(length)
-	spot.Position.Offset(r.Position)
+	T = (n_dot_q - n_dot_v) / n_dot_d
 
-	if spot.Position.Z > 0 && !vector.IsZero(nd) {
+	length = T
+
+	if debug.PLANES {
+		log.Printf("N = %s\n", N.String())
+		log.Printf("V = %s\n", V.String())
+		log.Printf("Q = %s\n", Q.String())
+		log.Printf("D = %s\n", D.String())
+		log.Printf("nq - nv / nd = %f - %f / %f = %f\n", n_dot_q, n_dot_v, n_dot_d, T)
+	}
+
+	P = D.Position().Copy()
+	D2 := P.Direction()
+	D2.Scale(T)
+	P2 := V.Copy()
+	P2.Displace(*D2)
+
+	spot.Position = P2
+
+	if spot.Position.Z > 0 && !vector.IsZero(n_dot_d) {
 		if debug.PLANES {
-			log.Printf("Plane is behind viewer, (T = %f)\n", length)
+			log.Printf("Plane is behind viewer. T = %f, Z position = %f\n", length, spot.Position.Z)
 		}
 		return false, length, spot
 	}
 
 	if debug.PLANES {
-		log.Printf("Hit plane %d at point %s, (T = %f)\n", p.shape.Id, spot.Position, length)
+		log.Printf("Hit plane %d at point %s, (T = %f)\n", p.Id(), spot.Position.String(), length)
 	}
 
 	spot.Direction = r.Direction
 
 	return true, length, spot
+}
+
+func (p *Plane) Ambient(d *vector.Position) vector.Vec3 {
+	return p.shape.Mat.Ambient
+}
+
+func (p *Plane) Diffuse(d *vector.Position) vector.Vec3 {
+	return p.shape.Mat.Diffuse
+}
+
+func (p *Plane) Specular(d *vector.Position) vector.Vec3 {
+	return p.shape.Mat.Specular
 }
 
 func (p *Plane) String() string {

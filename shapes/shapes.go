@@ -11,13 +11,19 @@ import (
 
 // A function pointer type.
 type shapeReader func(*bufio.Reader) (Shape, error)
+type lightReader func(*bufio.Reader) (Light, error)
 
 // A list of types that we know how to read in.
-var types = make(map[shapeId]shapeReader)
+var shapes = make(map[shapeId]shapeReader)
+var lights = make(map[shapeId]lightReader)
 
 // Shapes can be intersected
 type Shape interface {
+	Specular(*vector.Position) vector.Vec3
+	Ambient(*vector.Position)  vector.Vec3
+	Diffuse(*vector.Position)  vector.Vec3
 	Intersector
+	Id() int
 }
 
 // Things that can be intersected will have these methods.
@@ -33,7 +39,7 @@ type shapeId int
 
 type shape struct {
 	// The global shape id.
-	Id int
+	id int
 	// The shape type.
 	Type shapeId
 	// The shape's material.
@@ -43,11 +49,15 @@ type shape struct {
 }
 
 // Register a format with our list of readable formats.
-func RegisterFormat(id shapeId, reader shapeReader) {
-	types[id] = reader
+func RegisterShapeFormat(id shapeId, reader shapeReader) {
+	shapes[id] = reader
 }
 
-func Read(r *bufio.Reader) (shapes []Shape, err error) {
+func RegisterLightFormat(id shapeId, reader lightReader) {
+	lights[id] = reader
+}
+
+func Read(r *bufio.Reader, s *[]Shape, l *[]Light) (err error) {
 	err = nil
 	scanning := true
 
@@ -63,27 +73,38 @@ func Read(r *bufio.Reader) (shapes []Shape, err error) {
 
 		if err == nil {
 			// We can continue.
-			reader, exists := types[shapeId(num)]
+			shapeReader, shapeExists := shapes[shapeId(num)]
+			lightReader, lightExists := lights[shapeId(num)]
 
-			if !exists {
+			if !shapeExists && !lightExists {
 				if debug.SHAPES {
-					log.Printf("Exists, id, readCount, shapes: %v, %v, %v,\n%v\n", exists, num, count, types)
+					log.Printf("id, readCount, shapes, lights: %v, %v, %v,\n%v\n", num, count, shapes, lights)
 				}
-				return nil, fmt.Errorf("Unknown type id %d.", num)
+				return fmt.Errorf("Unknown type id %d.", num)
 			}
 
-			shape, err := reader(r)
+			if shapeExists {
+				shape, err := shapeReader(r)
 
-			if err != nil {
-				return nil, err
+				if err != nil {
+					return err
+				}
+
+				*s = append(*s, shape)
+			} else if lightExists {
+				light, err := lightReader(r)
+
+				if err != nil {
+					return err
+				}
+
+				*l = append(*l, light)
 			}
-
-			shapes = append(shapes, shape)
 		} else {
 			// We ran into an error.
 			if err != io.EOF {
 				// Some other error.
-				return nil, fmt.Errorf("Unable to read shape id.")
+				return fmt.Errorf("Unable to read shape id.")
 			} else {
 				// We're done here.
 				scanning = false
@@ -91,7 +112,7 @@ func Read(r *bufio.Reader) (shapes []Shape, err error) {
 		}
 	}
 
-	return shapes, nil
+	return nil
 }
 
 // Our internal counter for shapes.
@@ -99,7 +120,11 @@ var shapeCounter = 0
 
 // Pretty-print shape information.
 func (s shape) String() string {
-	return fmt.Sprintf("id: %d\n\tMaterial: \n%s", s.Id, s.Mat.String())
+	return fmt.Sprintf("id: %d\n\tMaterial: \n%s", s.id, s.Mat.String())
+}
+
+func (s shape) Id() int {
+	return s.id
 }
 
 // Read in a shape from the given io.Reader, return an error on failure.
@@ -108,7 +133,7 @@ func (s *shape) Read(r *bufio.Reader) error {
 		log.Println("Reading in a shape.")
 	}
 	// Give our shape an Id and increment it.
-	s.Id = shapeCounter
+	s.id = shapeCounter
 	shapeCounter++
 
 	// Read in our material.
