@@ -57,8 +57,13 @@ func readPlane(r *bufio.Reader) (Shape, error) {
 	return p, nil
 }
 
-func (p *Plane) Hits(r vector.Ray) (hit bool, length float64, spot vector.Ray) {
+func (p *Plane) Type() shapeId {
+	return 14
+}
+
+func (p *Plane) Hits(r vector.Ray) (hit bool, length float64, spot *vector.Ray) {
 	// Plane normal dot ray direction
+	spot = &vector.Ray{p.Center, p.Normal}
 	Q := p.Center
 	N := p.Normal
 	D := r.Direction
@@ -85,7 +90,7 @@ func (p *Plane) Hits(r vector.Ray) (hit bool, length float64, spot vector.Ray) {
 	T = (n_dot_q - n_dot_v) / n_dot_d
 
 	length = T
-
+/*
 	if debug.PLANES {
 		log.Printf("N = %s\n", N.String())
 		log.Printf("V = %s\n", V.String())
@@ -93,7 +98,7 @@ func (p *Plane) Hits(r vector.Ray) (hit bool, length float64, spot vector.Ray) {
 		log.Printf("D = %s\n", D.String())
 		log.Printf("nq - nv / nd = %f - %f / %f = %f\n", n_dot_q, n_dot_v, n_dot_d, T)
 	}
-
+*/
 	P = D.Position().Copy()
 	D2 := P.Direction()
 	D2.Scale(T)
@@ -102,7 +107,7 @@ func (p *Plane) Hits(r vector.Ray) (hit bool, length float64, spot vector.Ray) {
 
 	spot.Position = P2
 
-	if spot.Position.Z > 0 && !vector.IsZero(spot.Position.Z) {
+	if /*spot.Position.Z > 0 && !vector.IsZero(spot.Position.Z)*/ length < 0 && !vector.IsZero(length) {
 		if debug.PLANES {
 			log.Printf("Plane is behind viewer. T = %f, Z position = %f\n", length, spot.Position.Z)
 		}

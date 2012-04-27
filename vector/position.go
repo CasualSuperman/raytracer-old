@@ -29,7 +29,7 @@ func (source *Position) Offset(target Position) Direction {
 }
 
 func (p *Position) String() string {
-	return fmt.Sprintf("<%.3f, %.3f, %.3f>", p.X, p.Y, p.Z)
+	return fmt.Sprintf("<%.4f, %.4f, %.4f>", p.X, p.Y, p.Z)
 }
 
 func (p Position) Copy() Position {

@@ -9,7 +9,16 @@ import (
 )
 
 func diffuseIllumination(m *view.Model, obj *shapes.Shape, hit *vector.Ray, color *pixel) {
+	if debug.LIGHTS {
+		log.Println()
+	}
 	for _, light := range m.Lights {
+		if debug.LIGHTS {
+			log.Println("Testing against light", light.Id())
+		}
+		if debug.DIFFUSE {
+			log.Println()
+		}
 		processLight(m.Shapes, obj, hit, &light, color)
 	}
 }
@@ -18,18 +27,38 @@ func processLight(s []shapes.Shape, obj *shapes.Shape, hit *vector.Ray, l *shape
 
 	directionToLight := hit.Position.Offset(l.Center)
 
+	lightDistance := directionToLight.Length()
+
+	unitToLight := directionToLight
+	unitToLight.Unit()
+
+	r := vector.Ray{hit.Position, unitToLight}
+
+	shapeColor := (*obj).Diffuse(&hit.Position)
+
+	cos := vector.Dot(&hit.Direction, &r.Direction)
+
+	if debug.DIFFUSE {
+		log.Println("Hit object type was    ", (*obj).Type())
+		log.Println("Hit object id was      ", (*obj).Id())
+		log.Println("Hit point was          ", hit.Position)
+		log.Println("Normal at hitpoint     ", hit.Direction)
+		log.Println("Light object id        ", l.Id())
+		log.Println("Light center           ", l.Center)
+		log.Println("Distance to light is   ", lightDistance)
+		log.Println("Unit vector to light is", r.Direction)
+		log.Println("cosine is              ", cos)
+		log.Println("Emissivity of the light", l.Color)
+		log.Println("Diffuse Reflectivity   ", shapeColor)
+		log.Println("Current ivec           ", color)
+	}
+
 	if vector.Dot(&hit.Direction, &directionToLight) <= 0 {
 		if debug.DIFFUSE {
 			log.Println("Object self-occluded.")
 		}
 		return
 	}
-
-	r := vector.Ray{hit.Position, directionToLight}
-
-	lightDistance := directionToLight.Length()
-
-	r.Direction.Unit()
 
 	closest, nextDist, _ := findClosestObject(s, r, obj)
 
@@ -45,25 +74,17 @@ func processLight(s []shapes.Shape, obj *shapes.Shape, hit *vector.Ray, l *shape
 		}
 	}
 
-	shapeColor := (*obj).Diffuse(&hit.Position)
+	base := [3]float64{0, 0, 0}
 
-	cos := vector.Dot(&hit.Direction, &r.Direction)
+	base[0] = l.Color.X * shapeColor.X * cos / lightDistance
+	base[1] = l.Color.Y * shapeColor.Y * cos / lightDistance
+	base[2] = l.Color.Z * shapeColor.Z * cos / lightDistance
 
 	if debug.DIFFUSE {
-		log.Println("Hit object id was ", (*obj).Id())
-		log.Println("Hit point was", hit.Position)
-		log.Println("Normal at hitpoint", hit.Direction)
-		log.Println("Light object id", l.Id())
-		log.Println("Light center", l.Center)
-		log.Println("Distance to light is", lightDistance)
-		log.Println("Unit vector to light is", r.Direction)
-		log.Println("cosine is", cos)
-		log.Println("Emissivity of the light", l.Color)
-		log.Println("Diffuse Reflectivity", shapeColor)
-		log.Println("Current ivec", color)
+		log.Println("Scaled reflectivity   ", base)
 	}
 
-	color[0] += l.Color.X * shapeColor.X * cos / lightDistance
-	color[1] += l.Color.Y * shapeColor.Y * cos / lightDistance
-	color[2] += l.Color.Z * shapeColor.Z * cos / lightDistance
+	color[0] += base[0]
+	color[1] += base[1]
+	color[2] += base[2]
 }

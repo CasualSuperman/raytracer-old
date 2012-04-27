@@ -38,7 +38,7 @@ func (v *Vec3) Vector() Vec3 {
 }
 
 func (v *Vec3) String() string {
-	return fmt.Sprintf("{%.3f, %.3f, %.3f}", v.X, v.Y, v.Z)
+	return fmt.Sprintf("{%.4f, %.4f, %.4f}", v.X, v.Y, v.Z)
 }
 
 func (v *Vec3) Read(r *bufio.Reader) (err error) {

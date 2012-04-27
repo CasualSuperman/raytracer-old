@@ -57,17 +57,12 @@ func readSphere(r *bufio.Reader) (Shape, error) {
 	return s, nil
 }
 
-func (s *Sphere) Hits(r vector.Ray) (hit bool, length float64, spot vector.Ray) {
-/*
-	if debug.SPHERES {
-		log.Println("Ray:")
-		log.Println("\tPosition:", r.Position)
-		log.Println("\tDirection", r.Direction)
-		log.Println("Sphere:")
-		log.Println("\tCenter:", s.Center)
-		log.Println("\tRadius:", s.Radius)
-	}
-*/
+func (s *Sphere) Type() shapeId {
+	return 13
+}
+
+func (s *Sphere) Hits(r vector.Ray) (hit bool, length float64, spot *vector.Ray) {
+	spot = &vector.Ray{s.Center, r.Direction}
 
 	radius := s.Radius
 
@@ -77,7 +72,7 @@ func (s *Sphere) Hits(r vector.Ray) (hit bool, length float64, spot vector.Ray) 
 	newPos.Displace(offset.Offset(vector.Origin()))
 
 	if debug.SPHERES {
-		log.Println(newPos)
+		log.Println("Viewpoint adjusted to origin:", newPos)
 	}
 
 	a := vector.Dot(&r.Direction, &r.Direction)
@@ -91,7 +86,7 @@ func (s *Sphere) Hits(r vector.Ray) (hit bool, length float64, spot vector.Ray) 
 	discriminant := b*b - 4*a*c
 
 	if discriminant <= 0 {
-		return false, math.Inf(1), spot
+		return false, length, spot
 	}
 
 	length = (-b - math.Sqrt(discriminant)) / (2 * a)
@@ -100,8 +95,15 @@ func (s *Sphere) Hits(r vector.Ray) (hit bool, length float64, spot vector.Ray) 
 		log.Printf("Sphere discriminant is %f, (T = %f)\n", discriminant, length)
 	}
 
+	if length < 0 && !vector.IsZero(length) {
+		if debug.SPHERES {
+			log.Println("Negative length.")
+		}
+		return false, length, spot
+	}
+
 	move := r.Direction.Copy()
-	hitPos := newPos.Copy()
+	hitPos := r.Position.Copy()
 	move.Scale(length)
 	hitPos.Displace(move)
 
@@ -110,8 +112,14 @@ func (s *Sphere) Hits(r vector.Ray) (hit bool, length float64, spot vector.Ray) 
 
 	// Start the direction at the hit position, and subtract the center of the
 	// sphere.
-	spot.Direction = *hitPos.Direction()
-	spot.Direction.Sub(s.Center.Direction())
+	spot.Direction = s.Center.Offset(hitPos)
+	spot.Direction.Unit()
+
+	if debug.SPHERES {
+		log.Println("Hit Location:", hitPos)
+		log.Println("Sphere Center:", s.Center)
+		log.Println("Hit Normal:", spot.Direction)
+	}
 
 	hit = true
 

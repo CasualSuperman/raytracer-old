@@ -64,7 +64,7 @@ func (d1 *Direction) Sub(d2 *Direction) *Direction {
 }
 
 func (d *Direction) String() string {
-	return fmt.Sprintf("<%.3f, %.3f, %.3f>", d.X, d.Y, d.Z)
+	return fmt.Sprintf("<%.4f, %.4f, %.4f>", d.X, d.Y, d.Z)
 }
 
 func (d *Direction) Vector() Vec3 {

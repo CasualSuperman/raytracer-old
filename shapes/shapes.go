@@ -24,6 +24,7 @@ type Shape interface {
 	Diffuse(*vector.Position)  vector.Vec3
 	Intersector
 	Id() int
+	Type() shapeId
 }
 
 // Things that can be intersected will have these methods.
@@ -31,7 +32,7 @@ type Intersector interface {
 	/* Takes a normalized ray, and returns a boolean that says if it hit, and a
 	 * float64 that is the length of the ray when it hits the object.
 	 */
-	Hits(r vector.Ray) (bool, float64, vector.Ray)
+	Hits(r vector.Ray) (bool, float64, *vector.Ray)
 }
 
 // An alias of bytes to shapeId, but with actual type safety

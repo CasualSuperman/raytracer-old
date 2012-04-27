@@ -44,7 +44,7 @@ func MakeImage(m *view.Model) {
 	if debug.ANY {
 		// If any debugging is turned on, we want to do this in a single thread.
 		// That prevents the log messages from showing up inside each other.
-		for y := 0; y < image.Height(); y++ {
+		for y := image.Height() - 1; y >= 0; y-- {
 			for x := 0; x < image.Width(); x++ {
 				makePixel(m, x, y, image)
 			}
@@ -124,7 +124,7 @@ func rayTrace(m *view.Model, r vector.Ray, p *pixel, dist *float64, last shapes.
 	}
 }
 
-func mapPixToWorld(m *view.Model, x, y int) (r vector.Ray) {
+func mapPixToWorld(m *view.Model, row, col int) (r vector.Ray) {
 	p := m.Projection
 
 	pixelWidth := p.WinSizePixel[0]
@@ -133,11 +133,9 @@ func mapPixToWorld(m *view.Model, x, y int) (r vector.Ray) {
 	worldWidth := p.WinSizeWorld[0]
 	worldHeight := p.WinSizeWorld[1]
 
-	r.Position.X = float64(x) / float64(pixelWidth - 1) * worldWidth
-	r.Position.X -= worldWidth / 2
+	r.Position.X = float64(row) / float64(pixelWidth - 1) * worldWidth - (worldWidth / 2)
 
-	r.Position.Y = float64(y) / float64(-pixelHeight - 1) * worldHeight
-	r.Position.Y += worldHeight / 2
+	r.Position.Y = float64(col) / float64(-pixelHeight - 1) * worldHeight + (worldHeight / 2)
 
 	r.Position.Z = 0
 
@@ -147,8 +145,8 @@ func mapPixToWorld(m *view.Model, x, y int) (r vector.Ray) {
 
 	r.Position = p.Viewpoint
 
-	if debug.RAYTRACE {
-		log.Printf("Pixel %d, %d is ray %s\n", x, y, r.String())
+	if debug.RAYTRACE || debug.PIXEL {
+		log.Printf("Pixel %d, %d is ray %s\n", row, pixelHeight - col - 1, r.String())
 	}
 
 	return
@@ -158,7 +156,7 @@ func findClosestObject(shapes []shapes.Shape, start vector.Ray, base *shapes.Sha
 	d = math.Inf(1)
 	s = nil
 	for _, shape := range shapes {
-		if base == nil || shape != *base {
+		if base == nil || shape.Id() != (*base).Id() {
 			if debug.HITS {
 				log.Println("Casting ray at shape", shape.Id())
 			}
@@ -169,7 +167,7 @@ func findClosestObject(shapes []shapes.Shape, start vector.Ray, base *shapes.Sha
 				}
 				s = shape
 				d = dist
-				r = dir
+				r = *dir
 			}
 		}
 	}
