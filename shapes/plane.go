@@ -102,7 +102,7 @@ func (p *Plane) Hits(r vector.Ray) (hit bool, length float64, spot vector.Ray) {
 
 	spot.Position = P2
 
-	if spot.Position.Z > 0 && !vector.IsZero(n_dot_d) {
+	if spot.Position.Z > 0 && !vector.IsZero(spot.Position.Z) {
 		if debug.PLANES {
 			log.Printf("Plane is behind viewer. T = %f, Z position = %f\n", length, spot.Position.Z)
 		}
@@ -113,7 +113,7 @@ func (p *Plane) Hits(r vector.Ray) (hit bool, length float64, spot vector.Ray) {
 		log.Printf("Hit plane %d at point %s, (T = %f)\n", p.Id(), spot.Position.String(), length)
 	}
 
-	spot.Direction = r.Direction
+	spot.Direction = p.Normal
 
 	return true, length, spot
 }

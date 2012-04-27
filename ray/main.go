@@ -28,6 +28,10 @@ func main() {
 		log.Fatalln("Unable to read shapes.", err)
 	}
 
+	for _, light := range model.Lights {
+		log.Println(light)
+	}
+
 	for _, shape := range model.Shapes {
 		log.Println(shape)
 	}

@@ -58,9 +58,15 @@ func rayTrace(m *view.Model, r vector.Ray, p *pixel, dist *float64, last shapes.
 		*dist += nextDist
 		c := closest.Ambient(&hit.Position)
 
-		p[0] = c.X/(*dist)
-		p[1] = c.Y/(*dist)
-		p[2] = c.Z/(*dist)
+		p[0] = c.X
+		p[1] = c.Y
+		p[2] = c.Z
+
+		diffuseIllumination(m, &closest, &hit, p)
+
+		p[0] /= (*dist)
+        p[1] /= (*dist)
+        p[2] /= (*dist)
 	}
 }
 
@@ -94,21 +100,23 @@ func mapPixToWorld(m *view.Model, x, y int) (r vector.Ray) {
 	return
 }
 
-func findClosestObject(shapes []shapes.Shape, start vector.Ray, unused shapes.Shape) (s shapes.Shape, d float64, r vector.Ray) {
+func findClosestObject(shapes []shapes.Shape, start vector.Ray, base *shapes.Shape) (s shapes.Shape, d float64, r vector.Ray) {
 	d = math.Inf(1)
 	s = nil
 	for _, shape := range shapes {
-		if debug.HITS {
-			log.Println("Casting ray at shape", shape.Id())
-		}
-		hit, dist, dir := shape.Hits(start)
-		if hit && dist < d {
+		if base == nil || shape != *base {
 			if debug.HITS {
-				log.Println("Hit object")
+				log.Println("Casting ray at shape", shape.Id())
 			}
-			s = shape
-			d = dist
-			r = dir
+			hit, dist, dir := shape.Hits(start)
+			if hit && dist < d {
+				if debug.HITS {
+					log.Println("Hit object")
+				}
+				s = shape
+				d = dist
+				r = dir
+			}
 		}
 	}
 	return
