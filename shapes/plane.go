@@ -90,15 +90,15 @@ func (p *Plane) Hits(r vector.Ray) (hit bool, length float64, spot *vector.Ray) 
 	T = (n_dot_q - n_dot_v) / n_dot_d
 
 	length = T
-/*
-	if debug.PLANES {
-		log.Printf("N = %s\n", N.String())
-		log.Printf("V = %s\n", V.String())
-		log.Printf("Q = %s\n", Q.String())
-		log.Printf("D = %s\n", D.String())
-		log.Printf("nq - nv / nd = %f - %f / %f = %f\n", n_dot_q, n_dot_v, n_dot_d, T)
-	}
-*/
+	/*
+		if debug.PLANES {
+			log.Printf("N = %s\n", N.String())
+			log.Printf("V = %s\n", V.String())
+			log.Printf("Q = %s\n", Q.String())
+			log.Printf("D = %s\n", D.String())
+			log.Printf("nq - nv / nd = %f - %f / %f = %f\n", n_dot_q, n_dot_v, n_dot_d, T)
+		}
+	*/
 	P = D.Position().Copy()
 	D2 := P.Direction()
 	D2.Scale(T)
@@ -107,7 +107,7 @@ func (p *Plane) Hits(r vector.Ray) (hit bool, length float64, spot *vector.Ray) 
 
 	spot.Position = P2
 
-	if /*spot.Position.Z > 0 && !vector.IsZero(spot.Position.Z)*/ length < 0 && !vector.IsZero(length) {
+	if spot.Position.Z > 0 && !vector.IsZero(spot.Position.Z) || length < 0 && !vector.IsZero(length) {
 		if debug.PLANES {
 			log.Printf("Plane is behind viewer. T = %f, Z position = %f\n", length, spot.Position.Z)
 		}

@@ -20,8 +20,8 @@ var lights = make(map[shapeId]lightReader)
 // Shapes can be intersected
 type Shape interface {
 	Specular(*vector.Position) vector.Vec3
-	Ambient(*vector.Position)  vector.Vec3
-	Diffuse(*vector.Position)  vector.Vec3
+	Ambient(*vector.Position) vector.Vec3
+	Diffuse(*vector.Position) vector.Vec3
 	Intersector
 	Id() int
 	Type() shapeId

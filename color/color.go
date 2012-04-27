@@ -41,5 +41,5 @@ func (i Image) Height() int {
 }
 
 func (i Image) GetPixel(x, y int) Pixel {
-	return i.base[((y*i.width)+x)*3:((y*i.width)+x + 1)*3]
+	return i.base[((y*i.width)+x)*3 : ((y*i.width)+x+1)*3]
 }

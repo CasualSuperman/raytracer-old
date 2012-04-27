@@ -1,13 +1,13 @@
 package debug
 
 const (
-	DIFFUSE  = !true
+	DIFFUSE  = false
 	HITS     = false
 	IMAGE    = false
 	INPUT    = false
 	LIGHTS   = false
 	RAYTRACE = false
-	PIXEL    = !true
+	PIXEL    = false
 	PLANES   = false
 	SHAPES   = false
 	SPHERES  = false

@@ -35,7 +35,7 @@ func makePixelSegment(done chan bool, m *view.Model, i color.Image, s *pixelSegm
 
 func MakeImage(m *view.Model) {
 	image := color.New(m.Projection.WinSizePixel[0],
-					   m.Projection.WinSizePixel[1])
+		m.Projection.WinSizePixel[1])
 
 	if debug.IMAGE {
 		log.Println(*m)
@@ -51,11 +51,11 @@ func MakeImage(m *view.Model) {
 		}
 	} else {
 		// Otherwise, split up the work between the cores!
-		work := make([]pixelSegment, goroutines * goroutines)
+		work := make([]pixelSegment, goroutines*goroutines)
 
 		for i := 0; i < goroutines; i++ {
 			for j := 0; j < goroutines; j++ {
-				segment := &work[i * goroutines + j]
+				segment := &work[i*goroutines+j]
 
 				segment.Min.X = image.Width() / goroutines * (i + 0)
 				segment.Max.X = image.Width() / goroutines * (i + 1)
@@ -73,7 +73,7 @@ func MakeImage(m *view.Model) {
 		}
 
 		// Start a new goroutine every time we get a result back, keep the CPU busy
-		for i := goroutines; i < goroutines * goroutines; i++ {
+		for i := goroutines; i < goroutines*goroutines; i++ {
 			<-done
 			go makePixelSegment(done, m, image, &work[i])
 		}
@@ -99,7 +99,7 @@ func makePixel(m *view.Model, x, y int, i color.Image) {
 	p[1] = math.Min(1, p[1])
 	p[2] = math.Min(1, p[2])
 
-	i.SetPixel(x, y, uint8(p[0] * 255), uint8(p[1] * 255), uint8(p[2] * 255))
+	i.SetPixel(x, y, uint8(p[0]*255), uint8(p[1]*255), uint8(p[2]*255))
 }
 
 func rayTrace(m *view.Model, r vector.Ray, p *pixel, dist *float64, last shapes.Shape) {
@@ -119,8 +119,8 @@ func rayTrace(m *view.Model, r vector.Ray, p *pixel, dist *float64, last shapes.
 		diffuseIllumination(m, &closest, &hit, p)
 
 		p[0] /= (*dist)
-        p[1] /= (*dist)
-        p[2] /= (*dist)
+		p[1] /= (*dist)
+		p[2] /= (*dist)
 	}
 }
 
@@ -133,9 +133,9 @@ func mapPixToWorld(m *view.Model, row, col int) (r vector.Ray) {
 	worldWidth := p.WinSizeWorld[0]
 	worldHeight := p.WinSizeWorld[1]
 
-	r.Position.X = float64(row) / float64(pixelWidth - 1) * worldWidth - (worldWidth / 2)
+	r.Position.X = float64(row)/float64(pixelWidth-1)*worldWidth - (worldWidth / 2)
 
-	r.Position.Y = float64(col) / float64(-pixelHeight - 1) * worldHeight + (worldHeight / 2)
+	r.Position.Y = float64(col)/float64(-pixelHeight-1)*worldHeight + (worldHeight / 2)
 
 	r.Position.Z = 0
 
@@ -146,7 +146,7 @@ func mapPixToWorld(m *view.Model, row, col int) (r vector.Ray) {
 	r.Position = p.Viewpoint
 
 	if debug.RAYTRACE || debug.PIXEL {
-		log.Printf("Pixel %d, %d is ray %s\n", row, pixelHeight - col - 1, r.String())
+		log.Printf("Pixel %d, %d is ray %s\n", row, pixelHeight-col-1, r.String())
 	}
 
 	return
