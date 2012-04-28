@@ -12,14 +12,19 @@ func diffuseIllumination(m *view.Model, obj *shapes.Shape, hit *vector.Ray, colo
 	if debug.LIGHTS {
 		log.Println()
 	}
-	for _, light := range m.Lights {
-		if debug.LIGHTS {
-			log.Println("Testing against light", light.Id())
+
+	diff := (*obj).Diffuse(&hit.Position)
+
+	if !vector.IsZero(diff.Length()) {
+		for _, light := range m.Lights {
+			if debug.LIGHTS {
+				log.Println("Testing against light", light.Id())
+			}
+			if debug.DIFFUSE {
+				log.Println()
+			}
+			processLight(m.Shapes, obj, hit, &light, color)
 		}
-		if debug.DIFFUSE {
-			log.Println()
-		}
-		processLight(m.Shapes, obj, hit, &light, color)
 	}
 }
 

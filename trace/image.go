@@ -6,8 +6,6 @@ import (
 	"raytracer/color"
 	"raytracer/debug"
 	"raytracer/log"
-	"raytracer/shapes"
-	"raytracer/vector"
 	"raytracer/view"
 	"runtime"
 )
@@ -21,19 +19,31 @@ type pixelSegment struct {
 
 var goroutines = runtime.NumCPU()
 
-func makePixelSegment(done chan bool, m *view.Model, i color.Image, s *pixelSegment) {
+// Generates all the pixels in a range. Indicates completion on the given
+// channel when done.
+func makePixelSegment(done chan bool, m *view.Model, i color.Image,
+	s *pixelSegment) {
+
+	// Loop over the rows.
 	for y := s.Min.Y; y < s.Max.Y; y++ {
+		// Loop over the columns.
 		for x := s.Min.X; x < s.Max.X; x++ {
 			if debug.IMAGE {
 				log.Printf("Calculating pixel (%d, %d)\n", x, y)
 			}
+			// Create the pixel
 			makePixel(m, x, y, i)
 		}
 	}
+	// Notify completion
 	done <- true
+	// Exit
 }
 
+// Creates an image from the given model, using its lights, shapes, and
+// projection.
 func MakeImage(m *view.Model) {
+	// Make an image with the specified dimensions
 	image := color.New(m.Projection.WinSizePixel[0],
 		m.Projection.WinSizePixel[1])
 
@@ -44,6 +54,7 @@ func MakeImage(m *view.Model) {
 	if debug.ANY {
 		// If any debugging is turned on, we want to do this in a single thread.
 		// That prevents the log messages from showing up inside each other.
+		// Also, loop backwards, so our pixels match up with Dr Kreahling's.
 		for y := image.Height() - 1; y >= 0; y-- {
 			for x := 0; x < image.Width(); x++ {
 				makePixel(m, x, y, image)
@@ -53,21 +64,30 @@ func MakeImage(m *view.Model) {
 		// Otherwise, split up the work between the cores!
 		work := make([]pixelSegment, goroutines*goroutines)
 
+		// Split it in to the number of cores we have squared
+		// If we had just split it into the number of cores we have (say four)
+		// Then we run the risk of all the objects being in one quarter of the
+		// screen, and that section of work taking a long time while the other
+		// cores idle.
 		for i := 0; i < goroutines; i++ {
 			for j := 0; j < goroutines; j++ {
+				// Store the segment we're accessing.
 				segment := &work[i*goroutines+j]
 
+				// Calculate the column range.
 				segment.Min.X = image.Width() / goroutines * (i + 0)
 				segment.Max.X = image.Width() / goroutines * (i + 1)
 
+				// Calculate the row range.
 				segment.Min.Y = image.Height() / goroutines * (j + 0)
 				segment.Max.Y = image.Height() / goroutines * (j + 1)
 			}
 		}
 
+		// Make a channel so the goroutines can communicate when they are finished.
 		done := make(chan bool)
 
-		// Kick off as many threads as we have cores.
+		// Kick off as many goroutines as we have cores.
 		for i := 0; i < goroutines; i++ {
 			go makePixelSegment(done, m, image, &work[i])
 		}
@@ -84,14 +104,22 @@ func MakeImage(m *view.Model) {
 		}
 	}
 
+	// Print out the image
 	image.PPM(os.Stdout)
 }
 
+// Given a model and pixel column and row, and an image, calculates the
+// position of the pixel in the world, raytracing using that location, and
+// storing it in the given image.
 func makePixel(m *view.Model, x, y int, i color.Image) {
+	// Get the pixel's world location.
 	base := mapPixToWorld(m, x, y)
+	// Create storage space for the pixel
 	p := pixel{0, 0, 0}
+	// We haven't travelled anywhere yet.
 	dist := 0.0
 
+	// Trace using the pixel
 	rayTrace(m, base, &p, &dist, nil)
 
 	// Cap the pixel's intensity
@@ -99,77 +127,6 @@ func makePixel(m *view.Model, x, y int, i color.Image) {
 	p[1] = math.Min(1, p[1])
 	p[2] = math.Min(1, p[2])
 
+	// Put it in the image.
 	i.SetPixel(x, y, uint8(p[0]*255), uint8(p[1]*255), uint8(p[2]*255))
-}
-
-func rayTrace(m *view.Model, r vector.Ray, p *pixel, dist *float64, last shapes.Shape) {
-	closest, nextDist, hit := findClosestObject(m.Shapes, r, nil)
-
-	if closest != nil {
-		if debug.RAYTRACE {
-			log.Printf("Hit an object. (%d)\n", closest.Id())
-		}
-		*dist += nextDist
-		c := closest.Ambient(&hit.Position)
-
-		p[0] = c.X
-		p[1] = c.Y
-		p[2] = c.Z
-
-		diffuseIllumination(m, &closest, &hit, p)
-
-		p[0] /= (*dist)
-		p[1] /= (*dist)
-		p[2] /= (*dist)
-	}
-}
-
-func mapPixToWorld(m *view.Model, row, col int) (r vector.Ray) {
-	p := m.Projection
-
-	pixelWidth := p.WinSizePixel[0]
-	pixelHeight := p.WinSizePixel[1]
-
-	worldWidth := p.WinSizeWorld[0]
-	worldHeight := p.WinSizeWorld[1]
-
-	r.Position.X = float64(row)/float64(pixelWidth-1)*worldWidth - (worldWidth / 2)
-
-	r.Position.Y = float64(col)/float64(-pixelHeight-1)*worldHeight + (worldHeight / 2)
-
-	r.Position.Z = 0
-
-	r.Direction = *(r.Position.Direction())
-	r.Direction.Sub(p.Viewpoint.Direction())
-	r.Direction.Unit()
-
-	r.Position = p.Viewpoint
-
-	if debug.RAYTRACE || debug.PIXEL {
-		log.Printf("Pixel %d, %d is ray %s\n", row, pixelHeight-col-1, r.String())
-	}
-
-	return
-}
-
-func findClosestObject(shapes []shapes.Shape, start vector.Ray, base *shapes.Shape) (s shapes.Shape, d float64, r vector.Ray) {
-	d = math.Inf(1)
-	s = nil
-	for _, shape := range shapes {
-		if base == nil || shape.Id() != (*base).Id() {
-			if debug.HITS {
-				log.Println("Casting ray at shape", shape.Id())
-			}
-			hit, dist, dir := shape.Hits(start)
-			if hit && dist < d {
-				if debug.HITS {
-					log.Println("Hit object")
-				}
-				s = shape
-				d = dist
-				r = *dir
-			}
-		}
-	}
-	return
 }
