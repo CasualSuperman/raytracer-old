@@ -10,7 +10,6 @@ import (
 	"runtime"
 )
 
-type pixel [3]float64
 type pixelSegment struct {
 	Min, Max struct {
 		X, Y int
@@ -44,8 +43,8 @@ func makePixelSegment(done chan bool, m *view.Model, i color.Image,
 // projection.
 func MakeImage(m *view.Model) {
 	// Make an image with the specified dimensions
-	image := color.New(m.Projection.WinSizePixel[0],
-		m.Projection.WinSizePixel[1])
+	image := color.New(m.Projection.Pixel.Width,
+		m.Projection.Pixel.Height)
 
 	if debug.IMAGE {
 		log.Println(*m)
@@ -115,7 +114,7 @@ func makePixel(m *view.Model, x, y int, i color.Image) {
 	// Get the pixel's world location.
 	base := mapPixToWorld(m, x, y)
 	// Create storage space for the pixel
-	p := pixel{0, 0, 0}
+	p := color.Color{0, 0, 0}
 	// We haven't travelled anywhere yet.
 	dist := 0.0
 
@@ -123,10 +122,17 @@ func makePixel(m *view.Model, x, y int, i color.Image) {
 	rayTrace(m, base, &p, &dist, nil)
 
 	// Cap the pixel's intensity
-	p[0] = math.Min(1, p[0])
-	p[1] = math.Min(1, p[1])
-	p[2] = math.Min(1, p[2])
+	p.R = math.Min(1, p.R)
+	p.G = math.Min(1, p.G)
+	p.B = math.Min(1, p.B)
 
-	// Put it in the image.
-	i.SetPixel(x, y, uint8(p[0]*255), uint8(p[1]*255), uint8(p[2]*255))
+	if debug.COLOR {
+		log.Println("Color after intensity cap:", p)
+	}
+
+	pixelInImage := i.GetPixel(x, y)
+
+	*pixelInImage.R = uint8(p.R * 255)
+	*pixelInImage.G = uint8(p.G * 255)
+	*pixelInImage.B = uint8(p.B * 255)
 }

@@ -126,18 +126,6 @@ func (s *Sphere) Hits(r vector.Ray) (hit bool, length float64, spot *vector.Ray)
 	return
 }
 
-func (s *Sphere) Ambient(p *vector.Position) vector.Vec3 {
-	return s.shape.Mat.Ambient
-}
-
-func (s *Sphere) Diffuse(p *vector.Position) vector.Vec3 {
-	return s.shape.Mat.Diffuse
-}
-
-func (s *Sphere) Specular(p *vector.Position) vector.Vec3 {
-	return s.shape.Mat.Specular
-}
-
 func (s *Sphere) String() string {
 	return fmt.Sprintf("Sphere:\n\t%v\n\tcenter:\n\t%v\n\tradius:\n\t%v",
 		s.shape.String(), s.Center.String(), s.Radius)

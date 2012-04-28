@@ -1,45 +1,51 @@
 package color
 
 import (
+	"bufio"
 	"fmt"
-	"io"
+	"raytracer/debug"
+	"raytracer/log"
 )
 
-type Pixel []byte
-
-type Image struct {
-	base          []byte
-	height, width int
+type Color struct {
+	R, G, B float64
 }
 
-func New(x, y int) (i Image) {
-	i.base = make([]byte, x*y*3)
-	i.height = y
-	i.width = x
-	return
+func (c *Color) Read(r *bufio.Reader) (err error) {
+	count, line := 0, []byte{}
+
+	for count == 0 && err == nil {
+		line, _, err = r.ReadLine()
+		if err == nil {
+			count, err = fmt.Sscanf(string(line), "%f %f %f", &c.R, &c.G, &c.B)
+		}
+	}
+
+	if err != nil {
+		return err
+	}
+
+	if count != 3 {
+		return fmt.Errorf("Tried to read a color, only got %d values.", count)
+	}
+
+	if debug.INPUT {
+		log.Println("Read color:", c)
+	}
+
+	return nil
 }
 
-func (i Image) PPM(w io.Writer) {
-	fmt.Fprintln(w, "P6")
-	fmt.Fprintf(w, "%d %d\n", i.width, i.height)
-	fmt.Fprintln(w, "255")
-	w.Write(i.base)
+func (c *Color) Scale(factor float64) {
+	c.R *= factor
+	c.G *= factor
+	c.B *= factor
 }
 
-func (i Image) SetPixel(x, y int, r, g, b uint8) {
-	i.base[((y*i.width)+x)*3+0] = r
-	i.base[((y*i.width)+x)*3+1] = g
-	i.base[((y*i.width)+x)*3+2] = b
+func (c *Color) Magnitude() float64 {
+	return c.R + c.G + c.B
 }
 
-func (i Image) Width() int {
-	return i.width
-}
-
-func (i Image) Height() int {
-	return i.height
-}
-
-func (i Image) GetPixel(x, y int) Pixel {
-	return i.base[((y*i.width)+x)*3 : ((y*i.width)+x+1)*3]
+func (c Color) String() string {
+	return fmt.Sprintf("R: %.2f, G: %.2f, B: %.2f", c.R, c.G, c.B)
 }

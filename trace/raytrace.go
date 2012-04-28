@@ -2,6 +2,7 @@ package trace
 
 import (
 	"math"
+	"raytracer/color"
 	"raytracer/debug"
 	"raytracer/log"
 	. "raytracer/shapes"
@@ -12,7 +13,7 @@ import (
 // Given a model, a ray to trace along, a pixel to store the value in, a
 // distance travelled, and the shape we hit last, computes the pixel value of
 // what the ray hits.
-func rayTrace(m *view.Model, r Ray, p *pixel, dist *float64, last Shape) {
+func rayTrace(m *view.Model, r Ray, p *color.Color, dist *float64, last Shape) {
 	// Find the closest object
 	closest, nextDist, hit := findClosestObject(m.Shapes, r, nil)
 
@@ -26,18 +27,28 @@ func rayTrace(m *view.Model, r Ray, p *pixel, dist *float64, last Shape) {
 		// Get the object's ambient light
 		c := closest.Ambient(&hit.Position)
 
+		if debug.RAYTRACE {
+			log.Println("Ambient:", c)
+		}
+
 		// Initialize our color to it.
-		p[0] = c.X
-		p[1] = c.Y
-		p[2] = c.Z
+		p.R = c.R
+		p.G = c.G
+		p.B = c.B
+
+		if debug.COLOR {
+			log.Println("Traced color", p)
+		}
 
 		// Get the diffuse lighting at that spot as well.
 		diffuseIllumination(m, &closest, &hit, p)
 
+		if debug.COLOR && debug.DIFFUSE {
+			log.Println("Traced color after diffuse", p)
+		}
+
 		// Then divide by how far we've come, since light has an inverse falloff
-		p[0] /= (*dist)
-		p[1] /= (*dist)
-		p[2] /= (*dist)
+		p.Scale(1 / (*dist))
 	}
 }
 
@@ -67,7 +78,7 @@ func mapPixToWorld(m *view.Model, row, col int) (r Ray) {
 	r.Direction.Unit()
 
 	if debug.RAYTRACE || debug.PIXEL {
-		log.Println("Pixel", row, pixelHeight-col-1, "ray is", r)
+		log.Println("Pixel", row, pHeight-col-1, "ray is", r)
 	}
 
 	// But start the ray at the viewpoint.

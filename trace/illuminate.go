@@ -1,6 +1,7 @@
 package trace
 
 import (
+	"raytracer/color"
 	"raytracer/debug"
 	"raytracer/log"
 	"raytracer/shapes"
@@ -8,14 +9,14 @@ import (
 	"raytracer/view"
 )
 
-func diffuseIllumination(m *view.Model, obj *shapes.Shape, hit *vector.Ray, color *pixel) {
+func diffuseIllumination(m *view.Model, obj *shapes.Shape, hit *vector.Ray, p *color.Color) {
 	if debug.LIGHTS {
 		log.Println()
 	}
 
 	diff := (*obj).Diffuse(&hit.Position)
 
-	if !vector.IsZero(diff.Length()) {
+	if diff.Magnitude() > 0 {
 		for _, light := range m.Lights {
 			if debug.LIGHTS {
 				log.Println("Testing against light", light.Id())
@@ -23,12 +24,12 @@ func diffuseIllumination(m *view.Model, obj *shapes.Shape, hit *vector.Ray, colo
 			if debug.DIFFUSE {
 				log.Println()
 			}
-			processLight(m.Shapes, obj, hit, &light, color)
+			processLight(m.Shapes, obj, hit, &light, p)
 		}
 	}
 }
 
-func processLight(s []shapes.Shape, obj *shapes.Shape, hit *vector.Ray, l *shapes.Light, color *pixel) {
+func processLight(s []shapes.Shape, obj *shapes.Shape, hit *vector.Ray, l *shapes.Light, p *color.Color) {
 
 	directionToLight := hit.Position.Offset(l.Center)
 
@@ -55,7 +56,7 @@ func processLight(s []shapes.Shape, obj *shapes.Shape, hit *vector.Ray, l *shape
 		log.Println("cosine is              ", cos)
 		log.Println("Emissivity of the light", l.Color)
 		log.Println("Diffuse Reflectivity   ", shapeColor)
-		log.Println("Current ivec           ", color)
+		log.Println("Current ivec           ", p)
 	}
 
 	if vector.Dot(&hit.Direction, &directionToLight) <= 0 {
@@ -81,15 +82,15 @@ func processLight(s []shapes.Shape, obj *shapes.Shape, hit *vector.Ray, l *shape
 
 	base := [3]float64{0, 0, 0}
 
-	base[0] = l.Color.X * shapeColor.X * cos / lightDistance
-	base[1] = l.Color.Y * shapeColor.Y * cos / lightDistance
-	base[2] = l.Color.Z * shapeColor.Z * cos / lightDistance
+	base[0] = l.Color.R * shapeColor.R * cos / lightDistance
+	base[1] = l.Color.G * shapeColor.G * cos / lightDistance
+	base[2] = l.Color.B * shapeColor.B * cos / lightDistance
 
 	if debug.DIFFUSE {
 		log.Println("Scaled reflectivity   ", base)
 	}
 
-	color[0] += base[0]
-	color[1] += base[1]
-	color[2] += base[2]
+	p.R += base[0]
+	p.G += base[1]
+	p.B += base[2]
 }

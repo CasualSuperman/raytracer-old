@@ -41,7 +41,7 @@ func readFplane(r *bufio.Reader) (s Shape, err error) {
 	p.xDir.Unit()
 
 	if debug.FPLANES {
-		log.Println("Loading Plane width")
+		log.Println("Loading Fplane width and height")
 	}
 
 	line, _, err := r.ReadLine()
@@ -119,19 +119,8 @@ func (p *Fplane) Hits(r vector.Ray) (hit bool, length float64, spot *vector.Ray)
 	return true, length, spot
 }
 
-func (p *Fplane) Ambient(d *vector.Position) vector.Vec3 {
-	return p.shape.Mat.Ambient
-}
-
-func (p *Fplane) Diffuse(d *vector.Position) vector.Vec3 {
-	return p.shape.Mat.Diffuse
-}
-
-func (p *Fplane) Specular(d *vector.Position) vector.Vec3 {
-	return p.shape.Mat.Specular
-}
-
 func (p *Fplane) String() string {
-	return fmt.Sprintf("Plane:\n\t%v\n\tcenter:\n\t%v\n\tnormal:\n\t%v",
-		p.shape.String(), p.Center.String(), p.Normal.String())
+	return fmt.Sprintf("Finite plane:\n\t%v\n\t&v\n\txDir:\n\t%v\n\t" +
+		"dims:\n\t%.4f %.4f", p.shape.String(), p.Plane.String(), p.xDir,
+		p.width, p.height)
 }

@@ -9,11 +9,20 @@ type Model struct {
 	Shapes     []shapes.Shape
 }
 
-func New() Model {
-	return Model{}
-}
+func Read(args []string, input *bufio.Reader) (Model, error) {
+	// Start with a blank model.
+	m := Model{}
 
-func (m *Model) LoadProjection(args []string, input *bufio.Reader) (err error) {
-	m.Projection, err = newProjection(args, input)
-	return
+	// Read in the projection information.
+	err := m.Projection.Read(args, input)
+
+	if err != nil {
+		return m, err
+	}
+
+	// Allocate slices for the lights and shapes.
+	m.Lights = make([]shapes.Light, 0)
+	m.Shapes = make([]shapes.Shape, 0)
+
+	return m, nil
 }

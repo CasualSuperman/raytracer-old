@@ -3,17 +3,20 @@ package shapes
 import (
 	"bufio"
 	"fmt"
+	"raytracer/color"
 	"raytracer/debug"
 	"raytracer/log"
 	vec "raytracer/vector"
 )
 
+// Internal light ID counter.
 var lightId = 0
 
+// All lights have these things.
 type Light struct {
 	id     int
 	Center vec.Position
-	Color  vec.Vec3
+	Color  color.Color
 }
 
 func init() {

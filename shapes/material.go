@@ -2,15 +2,15 @@ package shapes
 
 import "bufio"
 import "fmt"
-import "raytracer/vector"
+import "raytracer/color"
 
 type Material struct {
-	Ambient, Diffuse, Specular vector.Vec3
+	Ambient, Diffuse, Specular color.Color
 }
 
 func (m Material) String() string {
-	return fmt.Sprintf("\t%v\n\t%v\n\t%v",
-		m.Ambient, m.Diffuse, m.Specular)
+	return fmt.Sprintln("\t\tAmbient:", m.Ambient, "\n\t\tDiffuse:", m.Diffuse,
+		"\n\t\tSpecular:", m.Specular)
 }
 
 func (m *Material) Read(r *bufio.Reader) error {

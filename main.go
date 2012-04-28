@@ -14,9 +14,8 @@ import (
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	stdin := bufio.NewReader(os.Stdin)
-	model := view.New()
 
-	err := model.LoadProjection(os.Args, stdin)
+	model, err := view.Read(os.Args, stdin)
 
 	if err != nil {
 		log.Fatalln(err)

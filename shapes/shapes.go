@@ -4,10 +4,14 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"raytracer/color"
 	"raytracer/debug"
 	"raytracer/log"
 	"raytracer/vector"
 )
+
+// An alias of int as shapeId, but with actual type safety
+type shapeId int
 
 // A function pointer type.
 type shapeReader func(*bufio.Reader) (Shape, error)
@@ -26,11 +30,11 @@ type Shape interface {
 	// Embed the Intersector interface.
 	Intersector
 	// Returns the specular at the given point.
-	Specular(*vector.Position) vector.Vec3
+	Specular(*vector.Position) color.Color
 	// Returns the ambient at the given point.
-	Ambient(*vector.Position) vector.Vec3
+	Ambient(*vector.Position) color.Color
 	// Returns the diffuse at the given point.
-	Diffuse(*vector.Position) vector.Vec3
+	Diffuse(*vector.Position) color.Color
 }
 
 // Things that can be intersected will have these methods.
@@ -39,17 +43,6 @@ type Intersector interface {
 	 * float64 that is the length of the ray when it hits the object.
 	 */
 	Hits(r vector.Ray) (bool, float64, *vector.Ray)
-}
-
-// An alias of int as shapeId, but with actual type safety
-type shapeId int
-
-// The basic information all shapes have.
-type shape struct {
-	// The global shape id.
-	id int
-	// The shape's material.
-	Mat Material
 }
 
 // Register a given shapeId with our list of shape formats we understand. It
@@ -137,40 +130,4 @@ func Read(r *bufio.Reader, s *[]Shape, l *[]Light) (err error) {
 
 	// If we broke out of the loop, we finished cleanly.
 	return nil
-}
-
-// Our internal counter for shapes.
-var shapeCounter = 0
-
-// Pretty-print shape information.
-func (s shape) String() string {
-	return fmt.Sprintf("id: %d\n\tMaterial: \n%s", s.id, s.Mat.String())
-}
-
-// Return our id.
-func (s shape) Id() int {
-	return s.id
-}
-
-// Read in a shape from the given io.Reader, return an error on failure.
-func (s *shape) Read(r *bufio.Reader) error {
-	if debug.SHAPES {
-		log.Println("Reading in a shape.")
-	}
-	// Give our shape an Id and increment it.
-	s.id = shapeCounter
-	shapeCounter++
-
-	// Read in our material.
-	err := s.Mat.Read(r)
-	if debug.SHAPES {
-		if err == nil {
-			log.Println("Read in material.")
-		} else {
-			log.Println("Error reading in material.")
-		}
-	}
-
-	// Return our error, if we have one.
-	return err
 }

@@ -123,18 +123,6 @@ func (p *Plane) Hits(r vector.Ray) (hit bool, length float64, spot *vector.Ray) 
 	return true, length, spot
 }
 
-func (p *Plane) Ambient(d *vector.Position) vector.Vec3 {
-	return p.shape.Mat.Ambient
-}
-
-func (p *Plane) Diffuse(d *vector.Position) vector.Vec3 {
-	return p.shape.Mat.Diffuse
-}
-
-func (p *Plane) Specular(d *vector.Position) vector.Vec3 {
-	return p.shape.Mat.Specular
-}
-
 func (p *Plane) String() string {
 	return fmt.Sprintf("Plane:\n\t%v\n\tcenter:\n\t%v\n\tnormal:\n\t%v",
 		p.shape.String(), p.Center.String(), p.Normal.String())

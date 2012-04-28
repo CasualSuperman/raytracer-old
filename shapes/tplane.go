@@ -1,10 +1,13 @@
 package shapes
 
-import "bufio"
-import "fmt"
-import "raytracer/debug"
-import "raytracer/log"
-import "raytracer/vector"
+import (
+	"bufio"
+	"fmt"
+	"raytracer/color"
+	"raytracer/debug"
+	"raytracer/log"
+	"raytracer/vector"
+)
 
 type Tplane struct {
 	Plane
@@ -42,7 +45,7 @@ func readTplane(r *bufio.Reader) (s Shape, err error) {
 	p.xDir.Unit()
 
 	if debug.TPLANES {
-		log.Println("Loading Plane width")
+		log.Println("Loading Tplane width")
 	}
 
 	line, _, err := r.ReadLine()
@@ -112,21 +115,21 @@ func (p *Tplane) hitBackground(d *vector.Position) bool {
 	*/
 }
 
-func (p *Tplane) Ambient(d *vector.Position) vector.Vec3 {
+func (p *Tplane) Ambient(d *vector.Position) color.Color {
 	if p.hitBackground(d) {
 		return p.background.Ambient
 	}
 	return p.shape.Mat.Ambient
 }
 
-func (p *Tplane) Diffuse(d *vector.Position) vector.Vec3 {
+func (p *Tplane) Diffuse(d *vector.Position) color.Color {
 	if p.hitBackground(d) {
 		return p.background.Diffuse
 	}
 	return p.shape.Mat.Diffuse
 }
 
-func (p *Tplane) Specular(d *vector.Position) vector.Vec3 {
+func (p *Tplane) Specular(d *vector.Position) color.Color {
 	if p.hitBackground(d) {
 		return p.background.Specular
 	}
@@ -134,6 +137,7 @@ func (p *Tplane) Specular(d *vector.Position) vector.Vec3 {
 }
 
 func (p *Tplane) String() string {
-	return fmt.Sprintf("Plane:\n\t%v\n\tcenter:\n\t%v\n\tnormal:\n\t%v",
-		p.shape.String(), p.Center.String(), p.Normal.String())
+	return fmt.Sprintf("Tiled plane:\n\t%v\n\tcenter:\n\t%v\n\tnormal:\n\t%v" +
+		"\n\tBackground material:\n%v", p.shape.String(), p.Center.String(),
+		p.Normal.String(), p.background.String())
 }
