@@ -101,7 +101,7 @@ func (p *Tplane) hitBackground(d *vector.Position) bool {
 	offset := p.Center.Direction().Copy()
 	offset.Invert()
 
-	newHit := d.Copy()
+	newHit := *d
 	newHit.Displace(offset)
 
 	rot.Xform(&newHit)
@@ -143,7 +143,7 @@ func (p *Tplane) Specular(d *vector.Position) color.Color {
 }
 
 func (p *Tplane) String() string {
-	return fmt.Sprintf("Tiled plane:\n\t%v\n\tcenter:\n\t%v\n\tnormal:\n\t%v" +
+	return fmt.Sprintf("Tiled plane:\n\t%v\n\tcenter:\n\t%v\n\tnormal:\n\t%v"+
 		"\n\tBackground material:\n%v", p.Plane.String(), p.Center.String(),
 		p.Normal.String(), p.background.String())
 }

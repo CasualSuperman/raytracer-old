@@ -72,11 +72,12 @@ func (s *Sphere) Hits(r vector.Ray) (hit bool, length float64, spot *vector.Ray)
 	spot = &vector.Ray{s.Center, r.Direction}
 
 	radius := s.Radius
+	offset := vector.Direction(s.Center)
+	newPos := r.Position
 
-	newPos := r.Position.Copy()
+	offset.Invert()
 
-	offset := s.Center.Copy()
-	newPos.Displace(offset.Offset(vector.Origin()))
+	newPos.Displace(offset)
 
 	if debug.SPHERES {
 		log.Println("Viewpoint adjusted to origin:", newPos)
@@ -109,8 +110,8 @@ func (s *Sphere) Hits(r vector.Ray) (hit bool, length float64, spot *vector.Ray)
 		return false, length, spot
 	}
 
-	move := r.Direction.Copy()
-	hitPos := r.Position.Copy()
+	move := r.Direction
+	hitPos := r.Position
 	move.Scale(length)
 	hitPos.Displace(move)
 

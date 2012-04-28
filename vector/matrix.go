@@ -1,7 +1,6 @@
 package vector
 
 import "fmt"
-import "raytracer/log"
 
 type Matrix [3]Vec3
 
@@ -13,7 +12,6 @@ func OrthogonalMatrix(x, z vectorer) (m Matrix) {
 
 	m[1] = Cross(m[2], m[0])
 	m[1].Unit()
-	log.Println("Finished Matrix:", m)
 	return
 }
 

@@ -47,12 +47,10 @@ func read(r *bufio.Reader) (s shapes.Shape, err error) {
 		return nil, err
 	}
 
+	// Project the xDirection onto the plane.
 	xDirTemp := p.Normal.Copy()
-
 	xDirTemp.Scale(vector.Dot(&p.xDir, &p.Normal))
-
 	p.xDir.Sub(&xDirTemp)
-
 	p.xDir.Unit()
 
 	if debug.FPLANES {
@@ -153,6 +151,6 @@ func (p *Fplane) Hits(r vector.Ray) (hit bool, length float64, spot *vector.Ray)
 }
 
 func (p *Fplane) String() string {
-	return fmt.Sprintf("Finite plane:\n\t%v\n\txDir:\n\t%v\n\t" +
+	return fmt.Sprintf("Finite plane:\n\t%v\n\txDir:\n\t%v\n\t"+
 		"dims:\n\t%.4f %.4f", p.Plane.String(), p.xDir, p.width, p.height)
 }
