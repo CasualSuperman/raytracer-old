@@ -13,7 +13,7 @@ import (
 var shapeCounter = 0
 
 // The basic information all shapes have.
-type shape struct {
+type BaseShape struct {
 	// The global shape id.
 	id int
 	// The shape's material.
@@ -21,17 +21,17 @@ type shape struct {
 }
 
 // Pretty-print shape information.
-func (s *shape) String() string {
+func (s *BaseShape) String() string {
 	return fmt.Sprintf("id: %d\n\tMaterial: \n%s", s.id, s.Mat.String())
 }
 
 // Return our id.
-func (s *shape) Id() int {
+func (s *BaseShape) Id() int {
 	return s.id
 }
 
 // Read in a shape from the given io.Reader, return an error on failure.
-func (s *shape) Read(r *bufio.Reader) error {
+func (s *BaseShape) Read(r *bufio.Reader) error {
 	if debug.SHAPES {
 		log.Println("Reading in a shape.")
 	}
@@ -54,16 +54,16 @@ func (s *shape) Read(r *bufio.Reader) error {
 }
 
 // Give shapes default ambient functions.
-func (s *shape) Ambient(d *vector.Position) color.Color {
+func (s *BaseShape) Ambient(d *vector.Position) color.Color {
 	return s.Mat.Ambient
 }
 
 // Give shapes default diffuse functions.
-func (s *shape) Diffuse(d *vector.Position) color.Color {
+func (s *BaseShape) Diffuse(d *vector.Position) color.Color {
 	return s.Mat.Diffuse
 }
 
 // Give shapes default specular functions.
-func (s *shape) Specular(d *vector.Position) color.Color {
+func (s *BaseShape) Specular(d *vector.Position) color.Color {
 	return s.Mat.Specular
 }

@@ -1,4 +1,4 @@
-package shapes
+package tplane
 
 import (
 	"bufio"
@@ -6,27 +6,33 @@ import (
 	"raytracer/color"
 	"raytracer/debug"
 	"raytracer/log"
+	"raytracer/shapes"
+	"raytracer/shapes/plane"
 	"raytracer/vector"
 )
 
+const (
+	Id shapes.ShapeId = 16
+)
+
 type Tplane struct {
-	Plane
+	plane.Plane
 	xDir          vector.Direction
 	width, height float64
-	background    Material
+	background    shapes.Material
 }
 
 func init() {
-	RegisterShapeFormat(16, readTplane)
+	shapes.RegisterShapeFormat(Id, read)
 }
 
-func readTplane(r *bufio.Reader) (s Shape, err error) {
+func read(r *bufio.Reader) (s shapes.Shape, err error) {
 	if debug.TPLANES {
 		log.Println("Reading in a tiled plane.")
 	}
 	p := new(Tplane)
-	s, err = readPlane(r)
-	p.Plane = *(s.(*Plane))
+	s, err = plane.Read(r)
+	p.Plane = *(s.(*plane.Plane))
 
 	if err != nil {
 		return nil, err
@@ -81,8 +87,8 @@ func readTplane(r *bufio.Reader) (s Shape, err error) {
 	return p, err
 }
 
-func (p *Tplane) Type() shapeId {
-	return 16
+func (p *Tplane) Type() shapes.ShapeId {
+	return Id
 }
 
 func (p *Tplane) hitBackground(d *vector.Position) bool {
@@ -119,25 +125,25 @@ func (p *Tplane) Ambient(d *vector.Position) color.Color {
 	if p.hitBackground(d) {
 		return p.background.Ambient
 	}
-	return p.shape.Mat.Ambient
+	return p.BaseShape.Mat.Ambient
 }
 
 func (p *Tplane) Diffuse(d *vector.Position) color.Color {
 	if p.hitBackground(d) {
 		return p.background.Diffuse
 	}
-	return p.shape.Mat.Diffuse
+	return p.BaseShape.Mat.Diffuse
 }
 
 func (p *Tplane) Specular(d *vector.Position) color.Color {
 	if p.hitBackground(d) {
 		return p.background.Specular
 	}
-	return p.shape.Mat.Specular
+	return p.BaseShape.Mat.Specular
 }
 
 func (p *Tplane) String() string {
 	return fmt.Sprintf("Tiled plane:\n\t%v\n\tcenter:\n\t%v\n\tnormal:\n\t%v" +
-		"\n\tBackground material:\n%v", p.shape.String(), p.Center.String(),
+		"\n\tBackground material:\n%v", p.Plane.String(), p.Center.String(),
 		p.Normal.String(), p.background.String())
 }

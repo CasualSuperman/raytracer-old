@@ -11,22 +11,22 @@ import (
 )
 
 // An alias of int as shapeId, but with actual type safety
-type shapeId int
+type ShapeId int
 
 // A function pointer type.
 type shapeReader func(*bufio.Reader) (Shape, error)
 type lightReader func(*bufio.Reader) (Light, error)
 
 // A map of types that we know how to read in.
-var shapes = make(map[shapeId]shapeReader)
-var lights = make(map[shapeId]lightReader)
+var shapes = make(map[ShapeId]shapeReader)
+var lights = make(map[ShapeId]lightReader)
 
 // The shape interface.
 type Shape interface {
 	// Returns the shape's global ID.
 	Id() int
 	// Return the type of shape that it is.
-	Type() shapeId
+	Type() ShapeId
 	// Embed the Intersector interface.
 	Intersector
 	// Returns the specular at the given point.
@@ -47,13 +47,13 @@ type Intersector interface {
 
 // Register a given shapeId with our list of shape formats we understand. It
 // will be read in using the provided shapeReader.
-func RegisterShapeFormat(id shapeId, reader shapeReader) {
+func RegisterShapeFormat(id ShapeId, reader shapeReader) {
 	shapes[id] = reader
 }
 
 // Register a given shapeId with our list of light formats we understand. It
 // will be read in using the provided lightReader.
-func RegisterLightFormat(id shapeId, reader lightReader) {
+func RegisterLightFormat(id ShapeId, reader lightReader) {
 	lights[id] = reader
 }
 
@@ -86,8 +86,8 @@ func Read(r *bufio.Reader, s *[]Shape, l *[]Light) (err error) {
 		} else {
 			// We can continue. See if we have a compatible reader with the
 			// shapeId we got.
-			shapeReader, shapeExists := shapes[shapeId(num)]
-			lightReader, lightExists := lights[shapeId(num)]
+			shapeReader, shapeExists := shapes[ShapeId(num)]
+			lightReader, lightExists := lights[ShapeId(num)]
 
 			// If we don't have one, let them know the shape is unsupported.
 			if !shapeExists && !lightExists {

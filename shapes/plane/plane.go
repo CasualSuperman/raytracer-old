@@ -1,27 +1,34 @@
-package shapes
+package plane
 
-import "bufio"
-import "fmt"
-import "raytracer/debug"
-import "raytracer/log"
-import "raytracer/vector"
+import (
+	"bufio"
+	"fmt"
+	"raytracer/debug"
+	"raytracer/log"
+	"raytracer/shapes"
+	"raytracer/vector"
+)
+
+const (
+	Id shapes.ShapeId = 14
+)
 
 type Plane struct {
-	shape
+	shapes.BaseShape
 	Center vector.Position
 	Normal vector.Direction
 }
 
 func init() {
-	RegisterShapeFormat(14, readPlane)
+	shapes.RegisterShapeFormat(Id, Read)
 }
 
-func readPlane(r *bufio.Reader) (Shape, error) {
+func Read(r *bufio.Reader) (shapes.Shape, error) {
 	if debug.PLANES {
 		log.Println("Reading in a plane.")
 	}
 	p := new(Plane)
-	err := p.shape.Read(r)
+	err := p.BaseShape.Read(r)
 	if err != nil {
 		return nil, err
 	}
@@ -57,8 +64,8 @@ func readPlane(r *bufio.Reader) (Shape, error) {
 	return p, nil
 }
 
-func (p *Plane) Type() shapeId {
-	return 14
+func (p *Plane) Type() shapes.ShapeId {
+	return Id
 }
 
 func (p *Plane) Hits(r vector.Ray) (hit bool, length float64, spot *vector.Ray) {
@@ -125,5 +132,5 @@ func (p *Plane) Hits(r vector.Ray) (hit bool, length float64, spot *vector.Ray) 
 
 func (p *Plane) String() string {
 	return fmt.Sprintf("Plane:\n\t%v\n\tcenter:\n\t%v\n\tnormal:\n\t%v",
-		p.shape.String(), p.Center.String(), p.Normal.String())
+		p.BaseShape.String(), p.Center.String(), p.Normal.String())
 }

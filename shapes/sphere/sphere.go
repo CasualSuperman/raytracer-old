@@ -1,28 +1,35 @@
-package shapes
+package sphere
 
-import "bufio"
-import "fmt"
-import "math"
-import "raytracer/debug"
-import "raytracer/log"
-import "raytracer/vector"
+import (
+	"bufio"
+	"fmt"
+	"math"
+	"raytracer/debug"
+	"raytracer/log"
+	"raytracer/shapes"
+	"raytracer/vector"
+)
+
+const (
+	Id shapes.ShapeId = 13
+)
 
 type Sphere struct {
-	shape
+	shapes.BaseShape
 	Center vector.Position
 	Radius float64
 }
 
 func init() {
-	RegisterShapeFormat(13, readSphere)
+	shapes.RegisterShapeFormat(Id, read)
 }
 
-func readSphere(r *bufio.Reader) (Shape, error) {
+func read(r *bufio.Reader) (shapes.Shape, error) {
 	if debug.SPHERES {
 		log.Println("Reading in a sphere.")
 	}
 	s := new(Sphere)
-	err := s.shape.Read(r)
+	err := s.BaseShape.Read(r)
 	if err != nil {
 		return nil, err
 	}
@@ -57,8 +64,8 @@ func readSphere(r *bufio.Reader) (Shape, error) {
 	return s, nil
 }
 
-func (s *Sphere) Type() shapeId {
-	return 13
+func (s *Sphere) Type() shapes.ShapeId {
+	return Id
 }
 
 func (s *Sphere) Hits(r vector.Ray) (hit bool, length float64, spot *vector.Ray) {
@@ -128,5 +135,5 @@ func (s *Sphere) Hits(r vector.Ray) (hit bool, length float64, spot *vector.Ray)
 
 func (s *Sphere) String() string {
 	return fmt.Sprintf("Sphere:\n\t%v\n\tcenter:\n\t%v\n\tradius:\n\t%v",
-		s.shape.String(), s.Center.String(), s.Radius)
+		s.BaseShape.String(), s.Center.String(), s.Radius)
 }

@@ -1,28 +1,32 @@
-package shapes
+package fplane
 
-import "bufio"
-import "fmt"
-import "raytracer/debug"
-import "raytracer/log"
-import "raytracer/vector"
+import (
+	"bufio"
+	"fmt"
+	"raytracer/debug"
+	"raytracer/log"
+	"raytracer/shapes"
+	"raytracer/shapes/plane"
+	"raytracer/vector"
+)
 
 type Fplane struct {
-	Plane
+	plane.Plane
 	xDir          vector.Direction
 	width, height float64
 }
 
 func init() {
-	RegisterShapeFormat(15, readFplane)
+	shapes.RegisterShapeFormat(15, read)
 }
 
-func readFplane(r *bufio.Reader) (s Shape, err error) {
+func read(r *bufio.Reader) (s shapes.Shape, err error) {
 	if debug.FPLANES {
 		log.Println("Reading in a finite plane.")
 	}
 	p := new(Fplane)
-	s, err = readPlane(r)
-	p.Plane = *(s.(*Plane))
+	s, err = plane.Read(r)
+	p.Plane = *(s.(*plane.Plane))
 
 	if err != nil {
 		return nil, err
@@ -71,7 +75,7 @@ func readFplane(r *bufio.Reader) (s Shape, err error) {
 	return p, nil
 }
 
-func (p *Fplane) Type() shapeId {
+func (p *Fplane) Type() shapes.ShapeId {
 	return 15
 }
 
@@ -121,6 +125,6 @@ func (p *Fplane) Hits(r vector.Ray) (hit bool, length float64, spot *vector.Ray)
 
 func (p *Fplane) String() string {
 	return fmt.Sprintf("Finite plane:\n\t%v\n\t&v\n\txDir:\n\t%v\n\t" +
-		"dims:\n\t%.4f %.4f", p.shape.String(), p.Plane.String(), p.xDir,
+		"dims:\n\t%.4f %.4f", p.BaseShape.String(), p.Plane.String(), p.xDir,
 		p.width, p.height)
 }

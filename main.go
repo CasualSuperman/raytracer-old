@@ -1,3 +1,8 @@
+/*
+A raytracer written in go.
+Supports planes, spheres, finite planes, tiled planes, diffuse and specular
+lighting.
+*/
 package main
 
 import (
@@ -10,6 +15,13 @@ import (
 	"raytracer/view"
 	"runtime"
 )
+
+// Import these packages for their side-effects (namely, type registration in
+// the shapes module.)
+import _ "raytracer/shapes/fplane"
+import _ "raytracer/shapes/tplane"
+import _ "raytracer/shapes/plane"
+import _ "raytracer/shapes/sphere"
 
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
