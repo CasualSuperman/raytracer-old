@@ -2,6 +2,7 @@ package vector
 
 import "bufio"
 import "fmt"
+import "math"
 import "raytracer/debug"
 import "raytracer/log"
 
@@ -29,12 +30,44 @@ func Dot(v1, v2 vectorer) float64 {
 		t1.Z*t2.Z
 }
 
+func Cross(v1, v2 vectorer) (v3 Vec3) {
+	u1 := v1.Vector()
+	u2 := v2.Vector()
+	u1.Unit()
+	u2.Unit()
+	v3.X = u1.Y*u2.Z - u1.Z*u2.Y
+	v3.Y = u1.Z*u2.X - u1.X*u2.Z
+	v3.Z = u1.X*u2.Y - u1.Y*u2.X
+	return
+}
+
 func IsZero(num float64) bool {
 	return num < 0.00001 && num > -0.00001
 }
 
 func (v *Vec3) Vector() Vec3 {
 	return *v
+}
+
+func (v *Vec3) Length() float64 {
+	return math.Sqrt(Dot(v, v))
+}
+
+func (v *Vec3) Unit() *Vec3 {
+	length := v.Length()
+
+	if length != 1 && length != 0 {
+		inverse := 1 / length
+		v.X *= inverse
+		v.Y *= inverse
+		v.Z *= inverse
+	} else if length == 0 {
+		nan := math.NaN()
+		v.X = nan
+		v.Y = nan
+		v.Z = nan
+	}
+	return v
 }
 
 func (v *Vec3) String() string {

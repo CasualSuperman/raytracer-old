@@ -2,6 +2,7 @@ package debug
 
 const (
 	DIFFUSE  = false
+	FPLANES  = false
 	HITS     = false
 	IMAGE    = false
 	INPUT    = false
@@ -11,6 +12,7 @@ const (
 	PLANES   = false
 	SHAPES   = false
 	SPHERES  = false
+	TPLANES  = false
 
-	ANY = DIFFUSE || HITS || IMAGE || INPUT || LIGHTS || RAYTRACE || PIXEL || PLANES || SHAPES || SPHERES
+	ANY = DIFFUSE || FPLANES || HITS || IMAGE || INPUT || LIGHTS || RAYTRACE || PIXEL || PLANES || SHAPES || SPHERES || TPLANES
 )
