@@ -43,6 +43,8 @@ func Read(r *bufio.Reader) (shapes.Shape, error) {
 		return nil, err
 	}
 
+	p.Normal.Unit()
+
 	if debug.PLANES {
 		log.Println("Loading Plane center")
 	}
@@ -70,7 +72,7 @@ func (p *Plane) Type() shapes.ShapeId {
 
 func (p *Plane) Hits(r vector.Ray) (hit bool, length float64, spot *vector.Ray) {
 	// Plane normal dot ray direction
-	spot = &vector.Ray{p.Center, p.Normal}
+	spot = &vector.Ray{Position: p.Center, Direction: p.Normal}
 	Q := p.Center
 	N := p.Normal
 	D := r.Direction

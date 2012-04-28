@@ -25,19 +25,13 @@ type vectorer interface {
 func Dot(v1, v2 vectorer) float64 {
 	t1 := v1.Vector()
 	t2 := v2.Vector()
-	return t1.X*t2.X +
-		t1.Y*t2.Y +
-		t1.Z*t2.Z
+	return t1.X*t2.X + t1.Y*t2.Y + t1.Z*t2.Z
 }
 
-func Cross(v1, v2 vectorer) (v3 Vec3) {
-	u1 := v1.Vector()
-	u2 := v2.Vector()
-	u1.Unit()
-	u2.Unit()
-	v3.X = u1.Y*u2.Z - u1.Z*u2.Y
-	v3.Y = u1.Z*u2.X - u1.X*u2.Z
-	v3.Z = u1.X*u2.Y - u1.Y*u2.X
+func Cross(v1, v2 Vec3) (v3 Vec3) {
+	v3.X = v1.Y*v2.Z - v1.Z*v2.Y
+	v3.Y = v1.Z*v2.X - v1.X*v2.Z
+	v3.Z = v1.X*v2.Y - v1.Y*v2.X
 	return
 }
 
@@ -50,7 +44,7 @@ func (v *Vec3) Vector() Vec3 {
 }
 
 func (v *Vec3) Length() float64 {
-	return math.Sqrt(Dot(v, v))
+	return math.Sqrt(v.X * v.X + v.Y * v.Y + v.Z * v.Z)
 }
 
 func (v *Vec3) Unit() *Vec3 {

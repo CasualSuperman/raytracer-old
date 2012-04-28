@@ -96,7 +96,7 @@ func (p *Tplane) hitBackground(d *vector.Position) bool {
 	x := p.xDir.Copy()
 	z := p.Normal.Copy()
 
-	rot := vector.OrthogonalMatrix(&x, nil, &z)
+	rot := vector.OrthogonalMatrix(&x, &z)
 
 	offset := p.Center.Direction().Copy()
 	offset.Invert()

@@ -10,14 +10,19 @@ import (
 	"raytracer/vector"
 )
 
+const (
+	Id shapes.ShapeId = 15
+)
+
 type Fplane struct {
 	plane.Plane
 	xDir          vector.Direction
 	width, height float64
+	rot           vector.Matrix
 }
 
 func init() {
-	shapes.RegisterShapeFormat(15, read)
+	shapes.RegisterShapeFormat(Id, read)
 }
 
 func read(r *bufio.Reader) (s shapes.Shape, err error) {
@@ -41,6 +46,12 @@ func read(r *bufio.Reader) (s shapes.Shape, err error) {
 	if err != nil {
 		return nil, err
 	}
+
+	xDirTemp := p.Normal.Copy()
+
+	xDirTemp.Scale(vector.Dot(&p.xDir, &p.Normal))
+
+	p.xDir.Sub(&xDirTemp)
 
 	p.xDir.Unit()
 
@@ -72,11 +83,19 @@ func read(r *bufio.Reader) (s shapes.Shape, err error) {
 		return nil, err
 	}
 
+	x := p.xDir.Copy()
+	z := p.Normal.Copy()
+
+	x.Unit()
+	z.Unit()
+
+	p.rot = vector.OrthogonalMatrix(&x, &z)
+
 	return p, nil
 }
 
 func (p *Fplane) Type() shapes.ShapeId {
-	return 15
+	return Id
 }
 
 func (p *Fplane) Hits(r vector.Ray) (hit bool, length float64, spot *vector.Ray) {
@@ -89,42 +108,51 @@ func (p *Fplane) Hits(r vector.Ray) (hit bool, length float64, spot *vector.Ray)
 		return
 	}
 
-	offset := p.Center.Direction().Copy()
+	if debug.FPLANES {
+		log.Println("Original hit point:", spot.Position.String())
+	}
+
+	offset := vector.Direction(p.Center)
 	offset.Invert()
 
-	newHit := spot.Position.Copy()
-	newHit.Displace(offset)
+	hitPos := spot.Position
 
-	x := p.xDir.Copy()
-	z := p.Normal.Copy()
+	hitPos.Displace(offset)
 
-	rot := vector.OrthogonalMatrix(&x, nil, &z)
-
-	rot.Xform(&newHit)
+	p.rot.Xform(&hitPos)
 
 	if debug.FPLANES {
-		log.Println("Rotation Matrix:", rot)
-		log.Println("Displaced point:", newHit)
-		log.Println("Original Normal:", p.Normal)
-		rot.Xform(p.Normal.Position())
-		log.Println("Rotated Normal:", p.Normal)
-		rot.UnXform(p.Normal.Position())
-		log.Println("Derotated Normal:", p.Normal)
+		log.Println("Displaced point:", spot.Position.String())
+		log.Println("Rotation Matrix:", p.rot.String())
+		log.Println("Original Normal:", p.Normal.String())
+		p.rot.Xform(p.Normal.Position())
+		log.Println("Rotated Normal:", p.Normal.String())
+		p.rot.UnXform(p.Normal.Position())
+		log.Println("Derotated Normal:", p.Normal.String())
 	}
 
-	if newHit.X > p.width || newHit.X < 0 {
+	if hitPos.X > p.width || hitPos.X < 0 {
+		if debug.FPLANES {
+			log.Printf("x > width (%.3f > %.3f)", hitPos.X, p.width)
+		}
 		return false, length, spot
 	}
 
-	if newHit.Y < -p.height || newHit.Y > 0 {
+	if hitPos.Y > p.height || hitPos.Y < 0 {
+		if debug.FPLANES {
+			log.Printf("y > height (%.3f > %.3f)", hitPos.Y, p.height)
+		}
 		return false, length, spot
+	}
+
+	if debug.FPLANES {
+		log.Println("Hit finite plane.")
 	}
 
 	return true, length, spot
 }
 
 func (p *Fplane) String() string {
-	return fmt.Sprintf("Finite plane:\n\t%v\n\t&v\n\txDir:\n\t%v\n\t" +
-		"dims:\n\t%.4f %.4f", p.BaseShape.String(), p.Plane.String(), p.xDir,
-		p.width, p.height)
+	return fmt.Sprintf("Finite plane:\n\t%v\n\txDir:\n\t%v\n\t" +
+		"dims:\n\t%.4f %.4f", p.Plane.String(), p.xDir, p.width, p.height)
 }
