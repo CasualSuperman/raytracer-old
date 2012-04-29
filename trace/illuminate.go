@@ -24,7 +24,9 @@ func diffuseIllumination(m *view.Model, obj shapes.Shape, hit *vector.Ray, p *co
 			if debug.DIFFUSE {
 				log.Println()
 			}
-			processLight(m.Shapes, obj, hit, light, p)
+			if light.Illuminated(&hit.Position) {
+				processLight(m.Shapes, obj, hit, light, p)
+			}
 		}
 	}
 }

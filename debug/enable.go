@@ -13,6 +13,7 @@ const (
 	PLANES   = false
 	SHAPES   = false
 	SPECULAR = !true
+	SPOTLIGHTS = false
 	SPHERES  = false
 	TPLANES  = false
 
