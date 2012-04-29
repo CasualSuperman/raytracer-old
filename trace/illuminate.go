@@ -24,14 +24,14 @@ func diffuseIllumination(m *view.Model, obj shapes.Shape, hit *vector.Ray, p *co
 			if debug.DIFFUSE {
 				log.Println()
 			}
-			processLight(m.Shapes, obj, hit, &light, p)
+			processLight(m.Shapes, obj, hit, light, p)
 		}
 	}
 }
 
-func processLight(s []shapes.Shape, obj shapes.Shape, hit *vector.Ray, l *shapes.Light, p *color.Color) {
+func processLight(s []shapes.Shape, obj shapes.Shape, hit *vector.Ray, l shapes.Light, p *color.Color) {
 
-	directionToLight := hit.Position.Offset(l.Center)
+	directionToLight := hit.Position.Offset(l.Position())
 
 	lightDistance := directionToLight.Length()
 
@@ -50,11 +50,11 @@ func processLight(s []shapes.Shape, obj shapes.Shape, hit *vector.Ray, l *shapes
 		log.Println("Hit point was          ", hit.Position)
 		log.Println("Normal at hitpoint     ", hit.Direction)
 		log.Println("Light object id        ", l.Id())
-		log.Println("Light center           ", l.Center)
+		log.Println("Light center           ", l.Position())
 		log.Println("Distance to light is   ", lightDistance)
 		log.Println("Unit vector to light is", r.Direction)
 		log.Println("cosine is              ", cos)
-		log.Println("Emissivity of the light", l.Color)
+		log.Println("Emissivity of the light", l.Color())
 		log.Println("Diffuse Reflectivity   ", shapeColor)
 		log.Println("Current ivec           ", p)
 	}
@@ -82,9 +82,9 @@ func processLight(s []shapes.Shape, obj shapes.Shape, hit *vector.Ray, l *shapes
 
 	base := [3]float64{0, 0, 0}
 
-	base[0] = l.Color.R * shapeColor.R * cos / lightDistance
-	base[1] = l.Color.G * shapeColor.G * cos / lightDistance
-	base[2] = l.Color.B * shapeColor.B * cos / lightDistance
+	base[0] = l.Color().R * shapeColor.R * cos / lightDistance
+	base[1] = l.Color().G * shapeColor.G * cos / lightDistance
+	base[2] = l.Color().B * shapeColor.B * cos / lightDistance
 
 	if debug.DIFFUSE {
 		log.Println("Scaled reflectivity   ", base)

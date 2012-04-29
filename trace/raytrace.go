@@ -23,7 +23,6 @@ func rayTrace(m *view.Model, r Ray, p *color.Color, dist float64, last Shape) {
 		}
 	}
 
-
 	// If we have one
 	if closest != nil {
 		if debug.RAYTRACE {

@@ -22,6 +22,7 @@ import _ "raytracer/shapes/fplane"
 import _ "raytracer/shapes/tplane"
 import _ "raytracer/shapes/plane"
 import _ "raytracer/shapes/sphere"
+import _ "raytracer/shapes/spotlight"
 
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
