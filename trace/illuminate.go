@@ -9,12 +9,12 @@ import (
 	"raytracer/view"
 )
 
-func diffuseIllumination(m *view.Model, obj *shapes.Shape, hit *vector.Ray, p *color.Color) {
+func diffuseIllumination(m *view.Model, obj shapes.Shape, hit *vector.Ray, p *color.Color) {
 	if debug.LIGHTS {
 		log.Println()
 	}
 
-	diff := (*obj).Diffuse(&hit.Position)
+	diff := obj.Diffuse(&hit.Position)
 
 	if diff.Magnitude() > 0 {
 		for _, light := range m.Lights {
@@ -29,7 +29,7 @@ func diffuseIllumination(m *view.Model, obj *shapes.Shape, hit *vector.Ray, p *c
 	}
 }
 
-func processLight(s []shapes.Shape, obj *shapes.Shape, hit *vector.Ray, l *shapes.Light, p *color.Color) {
+func processLight(s []shapes.Shape, obj shapes.Shape, hit *vector.Ray, l *shapes.Light, p *color.Color) {
 
 	directionToLight := hit.Position.Offset(l.Center)
 
@@ -40,13 +40,13 @@ func processLight(s []shapes.Shape, obj *shapes.Shape, hit *vector.Ray, l *shape
 
 	r := vector.Ray{hit.Position, unitToLight}
 
-	shapeColor := (*obj).Diffuse(&hit.Position)
+	shapeColor := obj.Diffuse(&hit.Position)
 
 	cos := vector.Dot(&hit.Direction, &r.Direction)
 
 	if debug.DIFFUSE {
-		log.Println("Hit object type was    ", (*obj).Type())
-		log.Println("Hit object id was      ", (*obj).Id())
+		log.Println("Hit object type was    ", obj.Type())
+		log.Println("Hit object id was      ", obj.Id())
 		log.Println("Hit point was          ", hit.Position)
 		log.Println("Normal at hitpoint     ", hit.Direction)
 		log.Println("Light object id        ", l.Id())

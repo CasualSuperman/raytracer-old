@@ -17,6 +17,18 @@ func (d *Direction) Scale(amount float64) *Direction {
 	return d
 }
 
+func (d *Direction) Reflect(norm Direction) {
+	out := *d
+	out.Invert()
+
+	norm.Scale(2 * Dot(&out, &norm))
+
+	norm.Sub(&out)
+	norm.Unit()
+
+	*d = norm
+}
+
 func (d *Direction) Invert() *Direction {
 	d.X *= -1
 	d.Y *= -1

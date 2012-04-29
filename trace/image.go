@@ -119,7 +119,7 @@ func makePixel(m *view.Model, x, y int, i color.Image) {
 	dist := 0.0
 
 	// Trace using the pixel
-	rayTrace(m, base, &p, &dist, nil)
+	rayTrace(m, base, &p, dist, nil)
 
 	// Cap the pixel's intensity
 	p.R = math.Min(1, p.R)

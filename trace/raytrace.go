@@ -13,42 +13,84 @@ import (
 // Given a model, a ray to trace along, a pixel to store the value in, a
 // distance travelled, and the shape we hit last, computes the pixel value of
 // what the ray hits.
-func rayTrace(m *view.Model, r Ray, p *color.Color, dist *float64, last Shape) {
+func rayTrace(m *view.Model, r Ray, p *color.Color, dist float64, last Shape) {
 	// Find the closest object
-	closest, nextDist, hit := findClosestObject(m.Shapes, r, nil)
+	closest, nextDist, hit := findClosestObject(m.Shapes, r, last)
+
+	if debug.RAYTRACE {
+		if dist > 0 {
+			log.Println("This is a recursive raytrace.")
+		}
+	}
+
 
 	// If we have one
 	if closest != nil {
 		if debug.RAYTRACE {
 			log.Printf("Hit an object. (%d)\n", closest.Id())
 		}
-		// Increase our ditance travelled.
-		*dist += nextDist
 		// Get the object's ambient light
-		c := closest.Ambient(&hit.Position)
+		ambient := closest.Ambient(&hit.Position)
 
 		if debug.RAYTRACE {
-			log.Println("Ambient:", c)
+			log.Println("Ambient:", ambient)
 		}
 
 		// Initialize our color to it.
-		p.R = c.R
-		p.G = c.G
-		p.B = c.B
+		p.R = ambient.R
+		p.G = ambient.G
+		p.B = ambient.B
 
 		if debug.COLOR {
 			log.Println("Traced color", p)
 		}
 
 		// Get the diffuse lighting at that spot as well.
-		diffuseIllumination(m, &closest, &hit, p)
+		diffuseIllumination(m, closest, &hit, p)
 
-		if debug.COLOR && debug.DIFFUSE {
+		if debug.COLOR || debug.DIFFUSE {
 			log.Println("Traced color after diffuse", p)
 		}
 
+		specularFactor := closest.Specular(&hit.Position)
+
+		if specularFactor.Magnitude() != 0 && dist < 3000 {
+			newRay := Ray{Direction: r.Direction, Position: hit.Position}
+			newRay.Reflect(hit.Direction)
+			specular := color.Color{0, 0, 0}
+			newDist := nextDist + dist
+
+			if debug.SPECULAR {
+				log.Println("Starting specular bounce, distance so far =", dist)
+				log.Println("Specular material:", specularFactor)
+				if dist > 0 {
+					log.Println("(This is a recursive bounce.)")
+				}
+			}
+
+			rayTrace(m, newRay, &specular, newDist, closest)
+
+			if debug.SPECULAR {
+				log.Println("Color after recursive raytrace:", specular)
+			}
+
+			specular.R *= specularFactor.R
+			specular.G *= specularFactor.G
+			specular.B *= specularFactor.B
+
+			p.R += specular.R
+			p.G += specular.G
+			p.B += specular.B
+		}
+
+		if debug.RAYTRACE {
+			if dist > 0 {
+				log.Println("End of recursive raytrace.")
+			}
+		}
+
 		// Then divide by how far we've come, since light has an inverse falloff
-		p.Scale(1 / (*dist))
+		p.Scale(1 / (dist + nextDist))
 	}
 }
 
@@ -91,14 +133,14 @@ func mapPixToWorld(m *view.Model, row, col int) (r Ray) {
 // find the closest shape to where we start. Return if we hit one, the distance
 // to it if we did hit it, and a ray with its position on the shape where we
 // hit, and its direction as the normal on the shape at that point.
-func findClosestObject(shapes []Shape, start Ray, base *Shape) (s Shape, d float64, r Ray) {
+func findClosestObject(shapes []Shape, start Ray, base Shape) (s Shape, d float64, r Ray) {
 	// Start at positive infinity
 	d = math.Inf(1)
 	// The closest shape doesn't exist yet.
 	s = nil
 	for _, shape := range shapes {
 		// Skip this if the shape is the one we're ignoring.
-		if base == nil || shape.Id() != (*base).Id() {
+		if base == nil || shape.Id() != base.Id() {
 			if debug.HITS {
 				log.Println("Casting ray at shape", shape.Id())
 			}

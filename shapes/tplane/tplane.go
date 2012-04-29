@@ -106,19 +106,10 @@ func (p *Tplane) hitBackground(d *vector.Position) bool {
 
 	rot.Xform(&newHit)
 
-	relX := int(1024 + newHit.X/p.width)
-	relY := int(1024 + newHit.Y/p.height)
+	relX := int(2 << 6 + newHit.X/p.width)
+	relY := int(2 << 6 + newHit.Y/p.height)
 
 	return (relX+relY)&1 == 1
-
-	/*
-		if relY == 0 {
-			if relX > 0 {
-				return ((relX + relY) & 1 != 1)
-			}
-		}
-		return ((relX + relY) & 1 == 1)
-	*/
 }
 
 func (p *Tplane) Ambient(d *vector.Position) color.Color {
