@@ -2,6 +2,7 @@ package trace
 
 import (
 	"math"
+	"math/rand"
 	"raytracer/color"
 	"raytracer/debug"
 	"raytracer/log"
@@ -104,10 +105,18 @@ func mapPixToWorld(m *view.Model, row, col int) (r Ray) {
 	wWidth := p.World.Width
 	wHeight := p.World.Height
 
-	r.Position.X = float64(row) / float64(pWidth-1) * wWidth
+	jitRow := float64(row)
+	jitCol := float64(col)
+
+	if ANTIALIAS > 1 {
+		jitRow += rand.Float64() - 0.5
+		jitCol += rand.Float64() - 0.5
+	}
+
+	r.Position.X = jitRow / float64(pWidth-1) * wWidth
 	r.Position.X -= wWidth / 2
 	// Do this backwards so we flip the image.
-	r.Position.Y = float64(col) / float64(pHeight-1) * wHeight
+	r.Position.Y = jitCol / float64(pHeight-1) * wHeight
 	r.Position.Y -= wHeight / 2
 	r.Position.Y *= -1
 

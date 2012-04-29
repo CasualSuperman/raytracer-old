@@ -3,6 +3,7 @@ package color
 import (
 	"bufio"
 	"fmt"
+	"math"
 	"raytracer/debug"
 	"raytracer/log"
 )
@@ -40,6 +41,12 @@ func (c *Color) Scale(factor float64) {
 	c.R *= factor
 	c.G *= factor
 	c.B *= factor
+}
+
+func (c *Color) Cap(max float64) {
+	c.R = math.Min(max, c.R)
+	c.G = math.Min(max, c.G)
+	c.B = math.Min(max, c.B)
 }
 
 func (c *Color) Magnitude() float64 {

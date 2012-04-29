@@ -1,7 +1,6 @@
 package trace
 
 import (
-	"math"
 	"os"
 	"raytracer/color"
 	"raytracer/debug"
@@ -9,35 +8,6 @@ import (
 	"raytracer/view"
 	"runtime"
 )
-
-type pixelSegment struct {
-	Min, Max struct {
-		X, Y int
-	}
-}
-
-var goroutines = runtime.NumCPU()
-
-// Generates all the pixels in a range. Indicates completion on the given
-// channel when done.
-func makePixelSegment(done chan bool, m *view.Model, i color.Image,
-	s *pixelSegment) {
-
-	// Loop over the rows.
-	for y := s.Min.Y; y < s.Max.Y; y++ {
-		// Loop over the columns.
-		for x := s.Min.X; x < s.Max.X; x++ {
-			if debug.IMAGE {
-				log.Printf("Calculating pixel (%d, %d)\n", x, y)
-			}
-			// Create the pixel
-			makePixel(m, x, y, i)
-		}
-	}
-	// Notify completion
-	done <- true
-	// Exit
-}
 
 // Creates an image from the given model, using its lights, shapes, and
 // projection.
@@ -56,49 +26,31 @@ func MakeImage(m *view.Model) {
 		// Also, loop backwards, so our pixels match up with Dr Kreahling's.
 		for y := image.Height() - 1; y >= 0; y-- {
 			for x := 0; x < image.Width(); x++ {
-				makePixel(m, x, y, image)
+				makeAntiAliasedPixel(m, x, y, image)
 			}
 		}
 	} else {
-		// Otherwise, split up the work between the cores!
-		work := make([]pixelSegment, goroutines*goroutines)
+		numCpus := runtime.NumCPU()
 
-		// Split it in to the number of cores we have squared
-		// If we had just split it into the number of cores we have (say four)
-		// Then we run the risk of all the objects being in one quarter of the
-		// screen, and that section of work taking a long time while the other
-		// cores idle.
-		for i := 0; i < goroutines; i++ {
-			for j := 0; j < goroutines; j++ {
-				// Store the segment we're accessing.
-				segment := &work[i*goroutines+j]
-
-				// Calculate the column range.
-				segment.Min.X = image.Width() / goroutines * (i + 0)
-				segment.Max.X = image.Width() / goroutines * (i + 1)
-
-				// Calculate the row range.
-				segment.Min.Y = image.Height() / goroutines * (j + 0)
-				segment.Max.Y = image.Height() / goroutines * (j + 1)
-			}
-		}
+		// Generate some pixel sections based on the number of cores we have.
+		work := generateWorkSegments(image.Height(), image.Width(), numCpus)
 
 		// Make a channel so the goroutines can communicate when they are finished.
 		done := make(chan bool)
 
 		// Kick off as many goroutines as we have cores.
-		for i := 0; i < goroutines; i++ {
+		for i := 0; i < numCpus; i++ {
 			go makePixelSegment(done, m, image, &work[i])
 		}
 
 		// Start a new goroutine every time we get a result back, keep the CPU busy
-		for i := goroutines; i < goroutines*goroutines; i++ {
+		for i := numCpus; i < numCpus * numCpus; i++ {
 			<-done
 			go makePixelSegment(done, m, image, &work[i])
 		}
 
 		// Wait for the last few to finish
-		for i := 0; i < goroutines; i++ {
+		for i := 0; i < numCpus; i++ {
 			<-done
 		}
 	}
@@ -122,9 +74,7 @@ func makePixel(m *view.Model, x, y int, i color.Image) {
 	rayTrace(m, base, &p, dist, nil)
 
 	// Cap the pixel's intensity
-	p.R = math.Min(1, p.R)
-	p.G = math.Min(1, p.G)
-	p.B = math.Min(1, p.B)
+	p.Cap(1)
 
 	if debug.COLOR {
 		log.Println("Color after intensity cap:", p)

@@ -20,6 +20,7 @@ type Tplane struct {
 	xDir          vector.Direction
 	width, height float64
 	background    shapes.Material
+	rot           vector.Matrix
 }
 
 func init() {
@@ -49,6 +50,11 @@ func read(r *bufio.Reader) (s shapes.Shape, err error) {
 	}
 
 	p.xDir.Unit()
+
+	x := p.xDir.Copy()
+	z := p.Normal.Copy()
+
+	p.rot = vector.OrthogonalMatrix(&x, &z)
 
 	if debug.TPLANES {
 		log.Println("Loading Tplane width")
@@ -92,19 +98,13 @@ func (p *Tplane) Type() shapes.ShapeId {
 }
 
 func (p *Tplane) hitBackground(d *vector.Position) bool {
-
-	x := p.xDir.Copy()
-	z := p.Normal.Copy()
-
-	rot := vector.OrthogonalMatrix(&x, &z)
-
-	offset := p.Center.Direction().Copy()
+	offset := vector.Direction(p.Center)
 	offset.Invert()
 
 	newHit := *d
 	newHit.Displace(offset)
 
-	rot.Xform(&newHit)
+	p.rot.Xform(&newHit)
 
 	relX := int(2<<6 + newHit.X/p.width)
 	relY := int(2<<6 + newHit.Y/p.height)
