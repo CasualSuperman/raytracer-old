@@ -109,7 +109,7 @@ func (p *Tplane) hitBackground(d *vector.Position) bool {
 	relX := int(2 << 6 + newHit.X/p.width)
 	relY := int(2 << 6 + newHit.Y/p.height)
 
-	return (relX+relY)&1 == 1
+	return (relX+relY)&1 == 0
 }
 
 func (p *Tplane) Ambient(d *vector.Position) color.Color {

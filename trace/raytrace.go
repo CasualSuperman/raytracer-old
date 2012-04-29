@@ -52,6 +52,9 @@ func rayTrace(m *view.Model, r Ray, p *color.Color, dist float64, last Shape) {
 			log.Println("Traced color after diffuse", p)
 		}
 
+		// Then divide by how far we've come, since light has an inverse falloff
+		p.Scale(1 / (dist + nextDist))
+
 		specularFactor := closest.Specular(&hit.Position)
 
 		if specularFactor.Magnitude() != 0 && dist < 3000 {
@@ -88,9 +91,6 @@ func rayTrace(m *view.Model, r Ray, p *color.Color, dist float64, last Shape) {
 				log.Println("End of recursive raytrace.")
 			}
 		}
-
-		// Then divide by how far we've come, since light has an inverse falloff
-		p.Scale(1 / (dist + nextDist))
 	}
 }
 
