@@ -18,7 +18,7 @@ const (
 // Given a model, a ray to trace along, a pixel to store the value in, a
 // distance travelled, and the shape we hit last, computes the pixel value of
 // what the ray hits.
-func rayTrace(m *view.Model, r Ray, p *color.Color, dist float64, last Shape) {
+func rayTrace(m *view.Model, r Ray, p *color.Color, dist float64, last Shape, depth int) {
 	// Find the closest object
 	closest, nextDist, hit := findClosestObject(m.Shapes, r, last)
 
@@ -76,7 +76,7 @@ func rayTrace(m *view.Model, r Ray, p *color.Color, dist float64, last Shape) {
 				}
 			}
 
-			rayTrace(m, newRay, &specular, newDist, closest)
+			rayTrace(m, newRay, &specular, newDist, closest, depth + 1)
 
 			if debug.SPECULAR {
 				log.Println("Color after recursive raytrace:", specular)
