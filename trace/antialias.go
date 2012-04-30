@@ -6,9 +6,12 @@ import (
 )
 
 const (
+	// The number of sub-pixels in an image. Antialiasing jitter is disabled id
+	// ANTIALIAS = 1.
 	ANTIALIAS = 4
 )
 
+// Make a pixel using the number of subsamples indicated in ANTIALIAS.
 func makeAntiAliasedPixel(m *view.Model, x, y int, image color.Image) {
 	total := color.Color{0, 0, 0}
 
@@ -23,7 +26,7 @@ func makeAntiAliasedPixel(m *view.Model, x, y int, image color.Image) {
 		total.B += p.B
 	}
 
-	total.Scale(1/float64(ANTIALIAS))
+	total.Scale(1 / float64(ANTIALIAS))
 	total.Cap(1)
 
 	pixelInImage := image.GetPixel(x, y)

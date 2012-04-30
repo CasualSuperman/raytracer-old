@@ -44,7 +44,7 @@ func MakeImage(m *view.Model) {
 		}
 
 		// Start a new goroutine every time we get a result back, keep the CPU busy
-		for i := numCpus; i < numCpus * numCpus; i++ {
+		for i := numCpus; i < numCpus*numCpus; i++ {
 			<-done
 			go makePixelSegment(done, m, image, &work[i])
 		}

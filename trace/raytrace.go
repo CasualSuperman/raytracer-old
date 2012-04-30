@@ -92,7 +92,7 @@ func rayTrace(m *view.Model, r Ray, p *color.Color, dist float64, last Shape) {
 		}
 
 		if FOG_ENABLED {
-			addFog(p, dist + nextDist)
+			addFog(p, dist+nextDist)
 		}
 
 		if debug.RAYTRACE {

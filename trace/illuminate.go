@@ -9,7 +9,14 @@ import (
 	"raytracer/view"
 )
 
-func diffuseIllumination(m *view.Model, obj shapes.Shape, hit *vector.Ray, p *color.Color) {
+// Finds the diffuse illumination at a point on an object.
+// m: The viewModel of the scene.
+// obj: The shape we hit.
+// hit: A ray with its position on the object and its direction on the normal.
+// color: The color to return the diffuse illumination on.
+func diffuseIllumination(m *view.Model, obj shapes.Shape, hit *vector.Ray,
+	p *color.Color) {
+
 	if debug.LIGHTS {
 		log.Println()
 	}
@@ -31,7 +38,11 @@ func diffuseIllumination(m *view.Model, obj shapes.Shape, hit *vector.Ray, p *co
 	}
 }
 
-func processLight(s []shapes.Shape, obj shapes.Shape, hit *vector.Ray, l shapes.Light, p *color.Color) {
+// Called for each light when processing illumination. Takes a list of shapes
+// to look at, a shape to potentially ignore, a hit location, a light to test
+// occlusion for, and a color to apply the light to.
+func processLight(s []shapes.Shape, obj shapes.Shape, hit *vector.Ray,
+	l shapes.Light, p *color.Color) {
 
 	directionToLight := hit.Position.Offset(l.Position())
 
@@ -76,7 +87,8 @@ func processLight(s []shapes.Shape, obj shapes.Shape, hit *vector.Ray, l shapes.
 		}
 		if nextDist < lightDistance {
 			if debug.DIFFUSE {
-				log.Printf("It was closer than the light (%f < %f).\n", nextDist, lightDistance)
+				log.Printf("It was closer than the light (%f < %f).\n",
+					nextDist, lightDistance)
 			}
 			return
 		}

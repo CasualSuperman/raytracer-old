@@ -113,7 +113,7 @@ func (p *Plane) Hits(r vector.Ray) (hit bool, length float64, spot *vector.Ray) 
 
 	spot.Position = V
 
-	if /*spot.Position.Z > 0 && !vector.IsZero(spot.Position.Z) || */length < 0 && !vector.IsZero(length) {
+	if /*spot.Position.Z > 0 && !vector.IsZero(spot.Position.Z) || */ length < 0 && !vector.IsZero(length) {
 		if debug.PLANES {
 			log.Printf("Plane is behind viewer. T = %f, Z position = %f\n", length, spot.Position.Z)
 		}
