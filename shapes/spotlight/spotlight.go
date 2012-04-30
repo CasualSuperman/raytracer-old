@@ -34,7 +34,6 @@ func (l *Spotlight) Illuminated(p *vector.Position) bool {
 	centerToHit := start.Offset(*p)
 	centerToHit.Unit()
 
-
 	if debug.SPOTLIGHTS {
 		log.Println("Spotlight to point:", centerToHit)
 		log.Println("cos(theta)", l.theta)
@@ -87,6 +86,6 @@ func readLight(r *bufio.Reader) (l shapes.Light, err error) {
 }
 
 func (l Spotlight) String() string {
-	return fmt.Sprintf("Spotlight:\n\tId: %s\n\tDirection:\n\t%s\n\t" +
+	return fmt.Sprintf("Spotlight:\n\tId: %s\n\tDirection:\n\t%s\n\t"+
 		"Theta:\n\t%v\n", l.BaseLight.String(), l.aim.String(), l.theta)
 }

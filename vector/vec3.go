@@ -16,6 +16,12 @@ func (v *Vec3) Length() float64 {
 	return length(v)
 }
 
+func (v *Vec3) Scale(i float64) {
+	v.X *= i
+	v.Y *= i
+	v.Z *= i
+}
+
 func (v *Vec3) Unit() *Vec3 {
 	length := v.Length()
 

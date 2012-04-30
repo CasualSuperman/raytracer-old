@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	ANTIALIAS = 16
+	ANTIALIAS = 4
 )
 
 func makeAntiAliasedPixel(m *view.Model, x, y int, image color.Image) {

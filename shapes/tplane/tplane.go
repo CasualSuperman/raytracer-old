@@ -28,6 +28,7 @@ func init() {
 }
 
 func read(r *bufio.Reader) (s shapes.Shape, err error) {
+	line := []byte{}
 	if debug.TPLANES {
 		log.Println("Reading in a tiled plane.")
 	}
@@ -60,8 +61,6 @@ func read(r *bufio.Reader) (s shapes.Shape, err error) {
 		log.Println("Loading Tplane width")
 	}
 
-	line, _, err := r.ReadLine()
-
 	if err != nil {
 		return nil, err
 	}
@@ -69,6 +68,7 @@ func read(r *bufio.Reader) (s shapes.Shape, err error) {
 	count := 0
 
 	for count == 0 && err == nil {
+		line, _, err = r.ReadLine()
 		count, err = fmt.Sscanf(string(line), "%f %f", &p.width, &p.height)
 	}
 

@@ -24,6 +24,12 @@ func init() {
 	shapes.RegisterShapeFormat(Id, read)
 }
 
+func (s *Sphere) Read(r *bufio.Reader) error {
+	d, err := read(r)
+	*s = *(d.(*Sphere))
+	return err
+}
+
 func read(r *bufio.Reader) (shapes.Shape, error) {
 	if debug.SPHERES {
 		log.Println("Reading in a sphere.")

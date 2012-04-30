@@ -11,6 +11,10 @@ import (
 	"raytracer/view"
 )
 
+const (
+	MAX_BOUNCE_DIST = 1000
+)
+
 // Given a model, a ray to trace along, a pixel to store the value in, a
 // distance travelled, and the shape we hit last, computes the pixel value of
 // what the ray hits.
@@ -57,7 +61,8 @@ func rayTrace(m *view.Model, r Ray, p *color.Color, dist float64, last Shape) {
 
 		specularFactor := closest.Specular(&hit.Position)
 
-		if specularFactor.Magnitude() != 0 && dist < 3000 {
+		if specularFactor.Magnitude() != 0 && dist < MAX_BOUNCE_DIST &&
+			!(p.R >= 1 && p.G >= 1 && p.B >= 1) {
 			newRay := Ray{Direction: r.Direction, Position: hit.Position}
 			newRay.Reflect(hit.Direction)
 			specular := color.Color{0, 0, 0}
@@ -86,11 +91,17 @@ func rayTrace(m *view.Model, r Ray, p *color.Color, dist float64, last Shape) {
 			p.B += specular.B
 		}
 
+		if FOG_ENABLED {
+			addFog(p, dist + nextDist)
+		}
+
 		if debug.RAYTRACE {
 			if dist > 0 {
 				log.Println("End of recursive raytrace.")
 			}
 		}
+	} else if FOG_ENABLED {
+		addFog(p, math.Inf(1))
 	}
 }
 

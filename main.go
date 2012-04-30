@@ -18,7 +18,9 @@ import (
 
 // Import these packages for their side-effects (namely, type registration in
 // the shapes module.)
+import _ "raytracer/shapes/cylinder"
 import _ "raytracer/shapes/fplane"
+import _ "raytracer/shapes/pshapes"
 import _ "raytracer/shapes/tplane"
 import _ "raytracer/shapes/plane"
 import _ "raytracer/shapes/sphere"

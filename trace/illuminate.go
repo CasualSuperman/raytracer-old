@@ -82,17 +82,21 @@ func processLight(s []shapes.Shape, obj shapes.Shape, hit *vector.Ray, l shapes.
 		}
 	}
 
-	base := [3]float64{0, 0, 0}
+	base := color.Color{0, 0, 0}
 
-	base[0] = l.Color().R * shapeColor.R * cos / lightDistance
-	base[1] = l.Color().G * shapeColor.G * cos / lightDistance
-	base[2] = l.Color().B * shapeColor.B * cos / lightDistance
+	base.R = l.Color().R * shapeColor.R * cos / lightDistance
+	base.G = l.Color().G * shapeColor.G * cos / lightDistance
+	base.B = l.Color().B * shapeColor.B * cos / lightDistance
+
+	if FOG_ENABLED {
+		addFog(&base, lightDistance)
+	}
 
 	if debug.DIFFUSE {
 		log.Println("Scaled reflectivity   ", base)
 	}
 
-	p.R += base[0]
-	p.G += base[1]
-	p.B += base[2]
+	p.R += base.R
+	p.G += base.G
+	p.B += base.B
 }
